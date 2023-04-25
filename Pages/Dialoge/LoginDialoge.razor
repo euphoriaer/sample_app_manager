@@ -1,0 +1,56 @@
+﻿<Button Type="primary" Size="@ButtonSize.Large" OnClick="@(()=>{ _visible = true; })" Icon="@IconType.Outline.Login">
+    登录
+</Button>
+<Modal Title="@title"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    <Form Model="@userItemState"
+          LabelCol="new ColLayoutParam { Span = 8 }"
+          WrapperCol="new ColLayoutParam { Span = 16 }">
+        <FormItem Label="Username">
+            <Input @bind-Value="@context.UserName" />
+        </FormItem>
+        <FormItem Label="Password">
+            <InputPassword @bind-Value="@context.Password" />
+        </FormItem>
+    </Form>
+</Modal>
+@code {
+    [Parameter]
+    public string title { get; set; } = "BasicModal";
+    public bool _visible = false;
+
+    [Parameter] public Action OnCancel { get; set; }
+    [Parameter] public Action<UserItem> OnConfirm { get; set; }
+
+
+    public UserItem userItemState;
+    protected override void OnInitialized()
+    {
+        userItemState = new UserItem();
+    }
+
+    private void HandleOk(MouseEventArgs e)
+    {
+        Console.WriteLine(e);
+        _visible = false;
+        if (OnConfirm!=null)
+        {
+            OnConfirm(userItemState);
+        }
+
+        userItemState = new UserItem();
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine(e);
+        _visible = false;
+        if (OnCancel!=null)
+        {
+            OnConfirm(userItemState);
+        }
+        userItemState = new UserItem();
+    }
+}

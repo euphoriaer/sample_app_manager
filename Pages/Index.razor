@@ -1,0 +1,43 @@
+﻿@page "/"
+
+Index
+
+@*@using SimpleDistribute.Model;
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+
+@using static SimpleDistribute.Pages.ProgressItem;
+@inject ProcessVersionWithStatus ProcessVersionStatus
+
+
+<Layout>
+	@foreach (var pipline in ProcessVersionStatus.curSelect.ProcessPiplines)
+	{
+		<Divider Orientation="left" Style="font-weight:bold">@pipline.PiplineName</Divider>
+
+		<Space Direction="DirectionVHType.Horizontal" Align="end" Size="@($"{size}")">
+			@foreach (var item in pipline.ProcessItems)
+			{
+				<SpaceItem>
+					<AppItem appSrc="item.Apk"/>
+				</SpaceItem>
+
+				<SpaceItem>
+					<ProgressItem CheckConditionName="item.CheckCondition"/>
+				</SpaceItem>
+			}
+		</Space>
+	}
+</Layout>
+
+@code {
+
+	double size = 15;
+	protected override async Task OnInitializedAsync()
+	{
+		//ProcessVersionStatus.processVersion = new List<ProcessVersion>();
+		//var task = HttpClient.GetFromJsonAsync<List<ProcessVersion>>(NavigationManager.BaseUri + "api/ProcessVersions");
+		//task.Wait();
+		//ProcessVersionStatus.processVersion = task.Result;
+	}
+}*@

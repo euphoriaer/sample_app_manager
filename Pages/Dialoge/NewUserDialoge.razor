@@ -1,0 +1,68 @@
+﻿@inject IMessageService _message
+
+<Button Type="primary" OnClick="@(()=>{ _visible = true; })">
+    新用户
+</Button>
+<Modal Title="@title"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    <Form Model="@userItemState"
+          LabelCol="new ColLayoutParam { Span = 8 }"
+          WrapperCol="new ColLayoutParam { Span = 16 }">
+        <FormItem Label="Username">
+            <Input @bind-Value="@context.UserName" />
+        </FormItem>
+        <FormItem Label="Password">
+            <Input @bind-Value="@context.Password" />
+        </FormItem>
+        <FormItem WrapperCol="new ColLayoutParam{ Offset = 8, Span = 16 }">
+            <Checkbox @bind-Value="context.IsAdmin">IsAdmin</Checkbox>
+        </FormItem>
+        <FormItem WrapperCol="new ColLayoutParam{ Offset = 8, Span = 16 }">
+            <Checkbox @bind-Value="context.UpLoad">UpLoad</Checkbox>
+        </FormItem>
+        <FormItem WrapperCol="new ColLayoutParam{ Offset = 8, Span = 16 }">
+            <Checkbox @bind-Value="context.isChecking">IsChecking</Checkbox>
+        </FormItem>
+    </Form>
+</Modal>
+
+@code {
+
+    [Parameter] public Action OnCancel { get; set; }
+    [Parameter] public Action<UserItem> OnConfirm { get; set; }
+
+    class Person
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+
+    string title = "新用户";
+    bool _visible = false;
+
+    public UserItem userItemState;
+    protected override void OnInitialized()
+    {
+        userItemState = new UserItem();
+    }
+
+    private void HandleOk(MouseEventArgs e)
+    {
+        Console.WriteLine(e);
+        _visible = false;
+        OnConfirm(userItemState);
+        userItemState = new UserItem();
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine(e);
+        _visible = false;
+        OnCancel();
+        userItemState = new UserItem();
+    }
+
+
+}

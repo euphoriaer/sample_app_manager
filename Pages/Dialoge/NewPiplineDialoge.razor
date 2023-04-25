@@ -1,0 +1,77 @@
+﻿@using System.ComponentModel.DataAnnotations;
+@using System.ComponentModel;
+@inject IMessageService _message
+
+<Button Type="primary" OnClick="@(()=>{ _visible = true; })">
+	新资源管线
+</Button>
+<Modal Title="@title"
+	   Visible="@_visible"
+	   OnOk="@HandleOk"
+	   OnCancel="@HandleCancel">
+	<Input @bind-Value="@pipline.PiplineName"/>
+	
+	<Table TItem="ProcessItem"   RowClassName="@(_=>"editable-row")" DataSource="@pipline.ProcessItems" Bordered Size="TableSize.Small" ScrollX="200" ScrollY="600">
+		<ColumnDefinitions>
+			<ColumnDefinition Width="20"/>
+			<ColumnDefinition Width="80"/>
+		</ColumnDefinitions>
+		<RowTemplate>
+			<TableRow>
+				<TableCell>
+					<Input Type="text" @bind-Value="context.Data.ApkName" AutoFocus />
+					</TableCell>
+				<TableCell>
+					<AntList Bordered DataSource="@context.Data.CheckCondition">
+						<ChildContent Context="condition">
+							<ListItem>
+								<Input @bind-Value="@condition.checkName"/>
+							</ListItem>
+						</ChildContent>
+						<Footer> 
+							<Button Type="@ButtonType.Primary" OnClick="()=>{context.Data.CheckCondition.Add(new CheckCondition());}">Add Condition</Button>
+						</Footer>
+					</AntList>
+					</TableCell>
+			</TableRow>
+		</RowTemplate>
+	</Table>
+<div>
+	<Button Type="@ButtonType.Primary" OnClick="()=>{pipline.ProcessItems.Add(new ProcessItem());}">Add ProcessItem</Button>
+</div>
+</Modal>
+
+@code {
+
+	[Parameter] public Action OnCancel { get; set; }
+	[Parameter] public Action<ProcessPipline> OnConfirm { get; set; }
+	public int Step = 1;
+
+	string title = "新资源管线";
+	bool _visible = false;
+
+
+	public ProcessPipline pipline;
+	protected override void OnInitialized()
+	{
+		pipline = new ProcessPipline();
+
+	}
+
+	private void HandleOk(MouseEventArgs e)
+	{
+		Console.WriteLine(e);
+		_visible = false;
+		OnConfirm(pipline);
+		pipline = new ProcessPipline();
+	}
+
+	private void HandleCancel(MouseEventArgs e)
+	{
+		Console.WriteLine(e);
+		_visible = false;
+		OnCancel();
+		pipline = new ProcessPipline();
+	}
+
+}

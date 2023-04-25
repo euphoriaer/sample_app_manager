@@ -1,0 +1,54 @@
+﻿<Button Type="primary" Size="@ButtonSize.Large" OnClick="@(()=>{ _visible = true; })" Icon="@IconType.Outline.FolderAdd">
+    新版本
+</Button>
+
+<Modal Title="@title"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel">
+    <Form Model="@versionItem"
+          LabelCol="new ColLayoutParam { Span = 8 }"
+          WrapperCol="new ColLayoutParam { Span = 16 }">
+        <FormItem Label="VersionName">
+            <Input @bind-Value="@context.VersionName" />
+        </FormItem>
+    </Form>
+</Modal>
+@code {
+    [Parameter]
+    public string title { get; set; } = "BasicModal";
+    public bool _visible = false;
+
+    [Parameter] public Action OnCancel { get; set; }
+    [Parameter] public Action<ProcessVersion> OnConfirm { get; set; }
+
+
+    public ProcessVersion versionItem;
+    protected override void OnInitialized()
+    {
+        versionItem = new ProcessVersion();
+    }
+
+    private void HandleOk(MouseEventArgs e)
+    {
+        Console.WriteLine(e);
+        _visible = false;
+        if (OnConfirm!=null)
+        {
+            OnConfirm(versionItem);
+        }
+
+        versionItem = new ProcessVersion();
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine(e);
+        _visible = false;
+        if (OnCancel!=null)
+        {
+            OnConfirm(versionItem);
+        }
+        versionItem = new ProcessVersion();
+    }
+}

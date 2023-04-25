@@ -1,0 +1,33 @@
+﻿@using SampleAppManager.Model;
+@inject Authentication authentication
+<Space Direction="DirectionVHType.Vertical" Align="center" Size=@size>
+	<SpaceItem>
+		<Space Direction="DirectionVHType.Vertical">
+			@foreach (var item in CheckConditionName)
+			{
+				<SpaceItem>
+					<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!authentication.isChecking)>
+						@item.checkName
+					</Checkbox>
+				</SpaceItem>
+			}
+		</Space>
+	</SpaceItem>
+	<SpaceItem>
+		<GridRow>
+			<Image Width="200px" Src="img/direction.png" Preview=false />
+		</GridRow>
+	</SpaceItem>
+</Space>
+
+@code 
+{
+	[Parameter]
+	public Action OnclickAction { get; set; }
+
+	[Parameter]
+	public List<CheckCondition> CheckConditionName { get; set; }
+
+	string size = "3";
+}
+

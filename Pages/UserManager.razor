@@ -1,0 +1,98 @@
+﻿@page "/UserManager"
+@using SampleAppManager.LiteDB;
+@using SampleAppManager.Model;
+@using SampleAppManager.Pages.Dialoge;
+@inject NavigationManager NavigationManager
+@inject LiteDbContext ProcessVersionData
+
+
+<div>
+	<Table TItem="UserItem" DataSource="@userItems"  RowClassName="@(_=>"editable-row")" Bordered>
+		<PropertyColumn Property="c=>c.UserName">
+			<a>@context.UserName</a>
+		</PropertyColumn>
+		<PropertyColumn Property="c=>c.Password">
+			@if (editId == context.UserName)
+			{
+				<Input Type="text" @bind-Value="context.Password" OnBlur="stopEdit" AutoFocus />
+			}
+			else
+			{
+				<div class="editable-cell-value-wrap" style="padding-right:24px" @onclick="()=>startEdit(context.UserName)">
+					@context.Password
+				</div>
+			}
+		</PropertyColumn>
+		<PropertyColumn Property="c=>c.IsAdmin">
+			<a>@context.IsAdmin</a>
+		</PropertyColumn>
+		<PropertyColumn Property="c=>c.UpLoad">
+			<a>@context.UpLoad</a>
+		</PropertyColumn>
+		<PropertyColumn Property="c=>c.isChecking">
+			<a>@context.isChecking</a>
+		</PropertyColumn>
+		<ActionColumn Title="Action" Width="200">
+			<CellRender Context="cellData">
+				<Popconfirm Title="Sure to delete?"
+							OnConfirm="()=> Delete(context.UserName)"
+							OkText="Yes"
+							CancelText="No">
+					<a>Delete</a>
+				</Popconfirm>
+			</CellRender>
+		</ActionColumn>
+	</Table>
+</div>
+<div>
+	<NewUserDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
+</div>
+
+@code {
+
+	string editId;
+	public List<UserItem> userItems = new List<UserItem>();
+	public UserItem user;
+	protected override async Task OnInitializedAsync()
+	{
+		userItems = ProcessVersionData.Users.GetUser();
+	}
+
+	public void AddNewUser()
+	{
+		user = new UserItem();
+	}
+
+	public void OnCancel()
+	{
+
+	}
+
+	public async void OnConfirm(UserItem user)
+	{
+		ProcessVersionData.Users.AddUser(user);
+
+	}
+	public async void Delete(string userName)
+	{
+		ProcessVersionData.Users.DeleteUser(userName);
+
+	}
+	public async void stopEdit()
+	{
+		var editedData = userItems.FirstOrDefault(x => x.UserName == editId);
+
+		if (editedData==null)
+		{
+			return;
+		}
+		//Update
+		ProcessVersionData.Users.UpdateUser(editedData);
+		editId = null;
+	}
+
+	public async void startEdit(string userName)
+	{
+		editId = userName;
+	}
+}

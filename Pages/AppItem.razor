@@ -1,0 +1,176 @@
+﻿@using Blazorise.QRCode
+@using Microsoft.AspNetCore.Components.Forms;
+@using QRCoder;
+@using SampleAppManager.Model;
+@using System.Security.Policy;
+
+@inject IWebHostEnvironment Environment
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClients
+@inject Authentication authentication
+<Space Direction="DirectionVHType.Vertical">
+	<SpaceItem>
+		<GridRow>
+			安装包:@appSrc.Name
+		</GridRow>
+		<GridRow>
+			@if (!string.IsNullOrEmpty(appSrc.QRcode))
+			{
+				<QRCode Value="@appSrc.QRcode" Alt="QRCode image" Style="{width:100;height:100px;}" DrawQuietZones=false PixelsPerModule=8 />
+			}
+			else
+			{
+				<Image Width="200px" Src="@appSrc.DefaultImage" Preview=false />
+
+			}
+
+		</GridRow>
+	</SpaceItem>
+	<SpaceItem>
+		@if (isLoading)
+		{
+			<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
+		}
+		@if (authentication.isUpload
+				&& string.IsNullOrEmpty(appSrc.QRcode))
+		{
+			<InputFile OnChange="@LoadFiles" multiple />
+		}
+	</SpaceItem>
+	<SpaceItem>
+		<GridRow>
+
+			<Button Type="@ButtonType.Primary" OnClick="DownloadFileFromURL">下载</Button>
+
+			<GridCol Span="1" />
+
+			<GridCol Span="1" />
+			@if (authentication.isUpload)
+			{
+				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
+			}
+		</GridRow>
+	</SpaceItem>
+</Space>
+
+
+<style>
+	.avatar-uploader > .ant-upload {
+		width: 200px;
+		height: 200px;
+	}
+</style>
+
+@code {
+	[Parameter]
+	public APKItem appSrc { get; set; }
+	private decimal progressPercent;
+	private List<IBrowserFile> loadedFiles = new();
+	private long maxFileSize = long.MaxValue;
+	private int maxAllowedFiles = 1;
+	private bool isLoading;
+
+	[Parameter]
+	public Action<APKItem> ChangeData { get; set; }
+
+
+	private async Task LoadFiles(InputFileChangeEventArgs e)
+	{
+		if (!authentication.isUpload)
+		{
+			return;
+		}
+
+		isLoading = true;
+		loadedFiles.Clear();
+
+		foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+		{
+			try
+			{
+
+				loadedFiles.Add(file);
+
+				var trustedFileNameForFileStorage = Path.GetRandomFileName() + file.Name + ".txt";
+				appSrc.Name = file.Name;
+				var path = Path.Combine(Environment.WebRootPath, "uploads",
+						trustedFileNameForFileStorage);
+				var folder = Path.Combine(Environment.WebRootPath, "uploads");
+				if (!Directory.Exists(folder))
+				{
+					Directory.CreateDirectory(folder);
+				}
+
+				await using FileStream writeStream = new(path, FileMode.Create);
+				using var readStream = file.OpenReadStream(maxFileSize);
+				var bytesRead = 0;
+				var totalRead = 0;
+				var buffer = new byte[1024 * 10];
+
+				while ((bytesRead = await readStream.ReadAsync(buffer)) != 0)
+				{
+					totalRead += bytesRead;
+
+					await writeStream.WriteAsync(buffer, 0, bytesRead);
+
+					progressPercent = Decimal.Divide(totalRead, file.Size);
+
+					StateHasChanged();
+				}
+
+				var downloadURL = Path.Combine(NavigationManager.BaseUri + $"uploads/{trustedFileNameForFileStorage}");
+				appSrc.localPath = path;
+				appSrc.DownLoadURL = downloadURL;
+				appSrc.QRcode = downloadURL;
+
+
+				if (ChangeData != null)
+				{
+					ChangeData(appSrc);
+				}
+			}
+			catch (Exception ex)
+			{
+
+			}
+		}
+
+		isLoading = false;
+	}
+
+
+	public async void DownloadFileFromURL()
+	{
+		try
+		{
+
+			var fileName = appSrc.Name;
+			var fileURL = appSrc.DownLoadURL;
+			await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+
+		}
+		catch (Exception)
+		{
+
+		}
+
+	}
+
+	public void Delete()
+	{
+		if (!string.IsNullOrEmpty(appSrc.localPath))
+		{
+			if (File.Exists(appSrc.localPath))
+			{
+				File.Delete(appSrc.localPath);
+				appSrc.DownLoadURL = "";
+				appSrc.QRcode = "";
+				if (ChangeData != null)
+				{
+					ChangeData(appSrc);
+				}
+			} 
+		}
+	}
+}
