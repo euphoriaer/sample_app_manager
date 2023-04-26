@@ -1,7 +1,7 @@
 # sample_app_manager
 Blazor 开发，内网APP分发平台,使用本地LiteDB数据库
 
-默认只有下载权限，必须登录，默认管理员账户 Administrator 666
+默认只有下载权限，**必须登录才能上传**，默认管理员账户 Administrator 666
 
 # QuickUse
 
