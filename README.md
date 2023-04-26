@@ -1,11 +1,14 @@
 # sample_app_manager
-Blazor 开发，内网APP分发平台
+Blazor 开发，内网APP分发平台,使用本地LiteDB数据库
+
+默认只有下载权限，必须登录，默认管理员账户 Administrator 666
 
 # QuickUse
 
 ## Windows 部署:
 
 服务器解压缩,命令控制行启动
+1.需要安装.Net7.0 https://dotnet.microsoft.com/zh-cn/download/dotnet/7.0
 
 1.资源管理器地址前面输入cmd 开启命令行同时切换到当前目录
 
