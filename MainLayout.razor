@@ -1,6 +1,7 @@
 ﻿@using SampleAppManager.LiteDB;
 @using SampleAppManager.Model;
 @using SampleAppManager.Pages.Dialoge;
+@using System.Diagnostics;
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClient
@@ -8,6 +9,7 @@
 @inject NotificationService _notice
 @inject LiteDbContext ProcessVersionData
 @inject Authentication authentication
+@inject ISessionStorageService SessionStorage
 
 <Layout Style="min-height: 100vh; ">
 	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
@@ -40,6 +42,20 @@
 
 @code {
 	bool collapsed;
+
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		var userData = await SessionStorage.GetItemAsync<UserItem>("UserData");
+
+		if (userData != null)
+		{
+			authentication.isUpload = userData.UpLoad;
+			authentication.isAdmin = userData.IsAdmin;
+			authentication.isChecking = userData.isChecking;
+			authentication.isNewVersion = userData.IsAdmin;
+		}
+	}
 
 	protected override void OnInitialized()
 	{
@@ -89,6 +105,7 @@
 			authentication.isChecking= user.isChecking;
 			authentication.isAdmin= user.IsAdmin;
 			authentication.isNewVersion= user.IsAdmin;
+			SessionStorage.SetItemAsync("UserData", user);
 		}
 	}
 

@@ -45,7 +45,8 @@
 			<GridCol Span="1" />
 
 			<GridCol Span="1" />
-			@if (authentication.isUpload)
+			@if (authentication.isUpload
+				&& !string.IsNullOrEmpty(appSrc.QRcode))
 			{
 				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
 			}
@@ -165,6 +166,8 @@
 				File.Delete(appSrc.localPath);
 				appSrc.DownLoadURL = "";
 				appSrc.QRcode = "";
+				appSrc.Name = "";
+				appSrc.Description = "";
 				if (ChangeData != null)
 				{
 					ChangeData(appSrc);
