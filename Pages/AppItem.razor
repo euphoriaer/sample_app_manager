@@ -2,7 +2,6 @@
 @using Microsoft.AspNetCore.Components.Forms;
 @using SampleAppManager.Model;
 @using System.Security.Policy;
-
 @inject IWebHostEnvironment Environment
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
@@ -46,7 +45,7 @@
 
 			<GridCol Span="1" />
 			@if (authentication.isUpload
-				&& !string.IsNullOrEmpty(appSrc.QRcode))
+					&& !string.IsNullOrEmpty(appSrc.QRcode))
 			{
 				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
 			}
@@ -92,11 +91,11 @@
 
 				loadedFiles.Add(file);
 
-				var trustedFileNameForFileStorage = Path.GetRandomFileName() + file.Name + ".txt";
+				var trustedFileNameForFileStorage = Path.GetRandomFileName() + file.Name;
 				appSrc.Name = file.Name;
-				var path = Path.Combine(Environment.WebRootPath, "uploads",
+				var path = Path.Combine(Environment.WebRootPath, "files",
 						trustedFileNameForFileStorage);
-				var folder = Path.Combine(Environment.WebRootPath, "uploads");
+				var folder = Path.Combine(Environment.WebRootPath, "files");
 				if (!Directory.Exists(folder))
 				{
 					Directory.CreateDirectory(folder);
@@ -119,7 +118,7 @@
 					StateHasChanged();
 				}
 
-				var downloadURL = Path.Combine(NavigationManager.BaseUri + $"uploads/{trustedFileNameForFileStorage}");
+				var downloadURL = Path.Combine(NavigationManager.BaseUri + $"api/download/{trustedFileNameForFileStorage}");
 				appSrc.localPath = path;
 				appSrc.DownLoadURL = downloadURL;
 				appSrc.QRcode = downloadURL;
@@ -147,8 +146,9 @@
 
 			var fileName = appSrc.Name;
 			var fileURL = appSrc.DownLoadURL;
-			await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
-
+			await JS.InvokeVoidAsync("open",fileURL);
+			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
 		}
 		catch (Exception)
 		{
@@ -172,7 +172,7 @@
 				{
 					ChangeData(appSrc);
 				}
-			} 
+			}
 		}
 	}
 }

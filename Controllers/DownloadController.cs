@@ -2,38 +2,42 @@
 
 namespace SampleAppManager.Controllers
 {
-    [Route("download")]
+    [Route("api/download")]
     [ApiController]
     public class DownloadController : Controller
     {
         private readonly IWebHostEnvironment env;
 
-        public DownloadController(IWebHostEnvironment env)
+
+		public DownloadController(IWebHostEnvironment env)
         {
             this.env = env;
         }
         /// <summary>
         /// 通过 HttpClient 获取另外站点的文件流，再输出
         /// </summary>
-        [HttpGet("url")]
-        public async Task<IActionResult> Get(string url)
+        [HttpGet("{fileName}")]
+        public async Task<IActionResult> Get(string fileName)
         {
             try
             {
-                // 解决 CentOS7 Https 下载地址出错的问题；
-                var httpClientHandler = new HttpClientHandler
+				
+				string wwwPath = env.WebRootPath;
+			
+				var path = Path.Combine(wwwPath, "files",
+						$"{fileName}");
+				var filePath = path;
+
+                if (!System.IO.File.Exists(filePath))
                 {
-                    ServerCertificateCustomValidationCallback = (message, certificate2, arg3, arg4) => true
-                };
-
-
-                using HttpClient client = new HttpClient(httpClientHandler);
-                var stream = await client.GetStreamAsync(url);
-                return File(
-                    stream,
-                    "application/octet-stream", // 二进制流
-                    Path.GetFileName(url));
-            }
+                    //Todo 弹出警告，文件不存在
+                    return null;
+                }
+                using (var bytes =System.IO.File.ReadAllBytesAsync(filePath))
+                {
+					return File(bytes.Result, "application/octet-stream", Path.GetFileName(filePath));
+				}
+			}
             catch (Exception ex)
             {
                
