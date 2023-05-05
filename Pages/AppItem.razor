@@ -10,7 +10,12 @@
 <Space Direction="DirectionVHType.Vertical">
 	<SpaceItem>
 		<GridRow>
-			安装包:@appSrc.Name
+			<Input Placeholder="@appSrc.Name"
+			@bind-Value="@appSrc.Name"
+					  Bordered="false"
+					  OnPressEnter="@(e => ChangeData(appSrc))"
+					  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!authentication.isUpload) />
+			
 		</GridRow>
 		<GridRow>
 			@if (!string.IsNullOrEmpty(appSrc.QRcode))
@@ -36,6 +41,16 @@
 			<InputFile OnChange="@LoadFiles" multiple />
 		}
 	</SpaceItem>
+
+	<SpaceItem>
+
+		<TextArea Placeholder="安装包描述"
+				  MinRows="1" MaxRows="3" @bind-Value="@appSrc.Description" 
+				  Bordered="false"
+				  OnPressEnter="@(e => ChangeData(appSrc))" 
+				  OnBlur="@(e => ChangeData(appSrc))" ReadOnly =@(!authentication.isUpload)/>
+	</SpaceItem>
+
 	<SpaceItem>
 		<GridRow>
 
@@ -43,14 +58,19 @@
 
 			<GridCol Span="1" />
 
+			<Button Type="@ButtonType.Primary" OnClick="Copy">复制</Button>
+
 			<GridCol Span="1" />
+
 			@if (authentication.isUpload
 					&& !string.IsNullOrEmpty(appSrc.QRcode))
 			{
 				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
 			}
+			<GridCol Span="1" />
 		</GridRow>
 	</SpaceItem>
+
 </Space>
 
 
@@ -147,6 +167,22 @@
 			var fileName = appSrc.Name;
 			var fileURL = appSrc.DownLoadURL;
 			await JS.InvokeVoidAsync("open",fileURL);
+			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
+		}
+		catch (Exception)
+		{
+
+		}
+
+	}
+	
+	public async void Copy()
+	{
+		try
+		{
+			string fileURL = appSrc.DownLoadURL;
+			await JS.InvokeVoidAsync("setClipboard", fileURL);
 			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
 		}

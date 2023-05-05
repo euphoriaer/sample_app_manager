@@ -23,7 +23,7 @@
 									<Input Placeholder="输入条件" OnBlur="@(e => UpdateCheck(item))" Bordered="false" TValue="string" OnPressEnter="@(e => UpdateCheck(item))" @bind-Value=item.checkName>
 								</GridCol>
 								<GridCol>
-									<Button Type="@ButtonType.Link" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => DeleteCheck(item))"></Button>
+									<Button Type="@ButtonType.Text" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => DeleteCheck(item))"></Button>
 								</GridCol>
 							</GridRow>
 						</Checkbox>
