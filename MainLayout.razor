@@ -16,12 +16,20 @@
 		<div class="logo" />
 		<Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{ProcessVersionStatus.processVersion[0].VersionName}) Mode="MenuMode.Inline">
 			<GridRow Justify="center" Align="middle">
+				@*todo 需要级联数据，刷新*@
 				<NewVersionDialoge title="新版本" OnConfirm="AddNewVersion"></NewVersionDialoge>
 			</GridRow>
 			@foreach (var item in ProcessVersionStatus.processVersion)
 			{
 				<MenuItem Key=@item.VersionName OnClick="()=>{VersionClick(item.VersionName);}">
-					<span>@item.VersionName</span>
+					<GridRow Justify="start" Align="middle">
+						<GridCol Span="4">
+								@item.VersionName
+						</GridCol>
+						<GridCol Span="4" Offset="16">
+								<Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(item))"></Button>
+						</GridCol>
+					</GridRow>
 				</MenuItem>
 			}
 		</Menu>
@@ -29,10 +37,25 @@
 	<Layout Class="site-layout">
 		<Header Class="site-layout-background" Style=" padding: 0 ;">
 			<GridRow Justify="end">
+			<Space>
+				<SpaceItem>
+				<GridCol>	
+				<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.Home" @onclick="@(e => Home())"></Button>
+				</GridCol>
+				</SpaceItem>
+
+				<SpaceItem>
+				<GridCol>
 				<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.UserSwitch" @onclick=EditorUser>账户管理</Button>
+				</GridCol>
+				</SpaceItem>
 				
+				<SpaceItem>
+				<GridCol>
 				<LoginDialoge title="登录" OnConfirm="Login"></LoginDialoge>
-				
+				</GridCol>
+				</SpaceItem>
+			</Space>
 			</GridRow>
 		</Header>
 		@Body
@@ -43,6 +66,16 @@
 @code {
 	bool collapsed;
 
+	public void Home()
+	{
+		NavigationManager.NavigateTo("/");
+	}
+
+	public void Delete(ProcessVersion version)
+	{
+		ProcessVersionStatus.processVersion.Remove(version);
+		ProcessVersionData.ProcessVersions.Delete(version);
+	}
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
@@ -53,7 +86,7 @@
 			authentication.isUpload = userData.UpLoad;
 			authentication.isAdmin = userData.IsAdmin;
 			authentication.isChecking = userData.isChecking;
-			authentication.isNewVersion = userData.IsAdmin;
+			authentication.isNewVersion = userData.UpLoad;
 		}
 	}
 
@@ -82,6 +115,7 @@
 		}
 		version.RouteName = version.VersionName.Replace(".", "_");
 		ProcessVersionData.ProcessVersions.Add(version);
+		ProcessVersionStatus.processVersion.Add(version);
 	}
 
 
@@ -111,8 +145,14 @@
 
 	void VersionClick(string selectVresion)
 	{
+		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(selectVresion);
+		if (elements.Count==0)
+		{
+			ProcessVersionStatus.curSelect = new ProcessVersion();
+			return;
+		}
 		//todo 切到指定版本
-		var curSelectProcess = ProcessVersionData.ProcessVersions.GetProcessVersion(selectVresion)
+		var curSelectProcess = elements
 		.Where(o=>o.VersionName==selectVresion)
 		.ToList()
 		.First();

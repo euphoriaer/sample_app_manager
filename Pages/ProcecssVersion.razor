@@ -12,7 +12,13 @@
 
 @foreach (var pipline in ProcessVersionStatus.curSelect.ProcessPiplines)
 {
-	<Divider Orientation="left" Style="font-weight:bold">@pipline.PiplineName</Divider>
+	<Divider Orientation="left" Style="font-weight:bold">
+		@pipline.PiplineName
+		@if (authentication.isUpload)
+		{
+			<Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(pipline))"></Button>
+		}
+	</Divider>
 
 	<Space Direction="DirectionVHType.Horizontal" Align="end" Size="@($"{size}")">
 		@foreach (var item in pipline.ProcessItems)
@@ -41,7 +47,7 @@
 	}
 	</Space>
 }
-@if (authentication.isAdmin)
+@if (authentication.isUpload)
 {
 	<div>
 		<NewPiplineDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
@@ -54,6 +60,11 @@
 	public string version { get; set; }
 	double size = 15;
 
+	public void Delete(ProcessPipline pip)
+	{
+		ProcessVersionStatus.curSelect.ProcessPiplines.Remove(pip);
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
 
 	protected override void OnInitialized()
 	{

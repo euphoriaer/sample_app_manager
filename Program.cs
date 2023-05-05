@@ -11,7 +11,6 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
-//builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredSessionStorage();
 builder.Services
     .AddBlazorise(options =>

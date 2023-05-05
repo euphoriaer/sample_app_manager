@@ -80,7 +80,7 @@ namespace SampleAppManager.LiteDB
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
-					col.Delete(version.VersionName);
+					bool isOk=col.Delete(version.RouteName);
 				}
 			}
 		}
