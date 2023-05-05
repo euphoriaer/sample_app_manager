@@ -1,15 +1,41 @@
-﻿@using SampleAppManager.Model;
+﻿@using SampleAppManager.LiteDB;
+@using SampleAppManager.Model;
 @inject Authentication authentication
+@inject LiteDbContext ProcessVersionData
 <Space Direction="DirectionVHType.Vertical" Align="center" Size=@size>
 	<SpaceItem>
 		<Space Direction="DirectionVHType.Vertical">
-			@foreach (var item in CheckConditionName)
+			@if (authentication.isAdmin)
 			{
 				<SpaceItem>
-					<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!authentication.isChecking)>
-						@item.checkName
-					</Checkbox>
+					<Button Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Size="@ButtonSize.Small" Icon="@IconType.Outline.Plus" OnClick="AddCheck"> </Button>
 				</SpaceItem>
+			}
+			
+			@foreach (var item in CheckConditionName)
+			{
+				@if (authentication.isAdmin)
+				{
+					<SpaceItem>
+						<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!authentication.isChecking)>
+							<GridRow>
+								<GridCol>
+									<Input Placeholder="输入条件" OnBlur="@(e => UpdateCheck(item))" Bordered="false" TValue="string" OnPressEnter="@(e => UpdateCheck(item))" @bind-Value=item.checkName>
+								</GridCol>
+								<GridCol>
+									<Button Type="@ButtonType.Link" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => DeleteCheck(item))"></Button>
+								</GridCol>
+							</GridRow>
+						</Checkbox>
+					</SpaceItem>
+				}else
+				{
+					<SpaceItem>
+						<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!authentication.isChecking)>
+							@item.checkName
+						</Checkbox>
+					</SpaceItem>
+				}
 			}
 		</Space>
 	</SpaceItem>
@@ -27,6 +53,15 @@
 
 	[Parameter]
 	public List<CheckCondition> CheckConditionName { get; set; }
+
+	[Parameter]
+	public Action<CheckCondition> DeleteCheck { get; set; }
+
+	[Parameter]
+	public Action<CheckCondition> UpdateCheck { get; set; }
+
+	[Parameter]
+	public Action AddCheck { get; set; }
 
 	string size = "3";
 }

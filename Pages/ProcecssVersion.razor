@@ -36,7 +36,12 @@
 			@if (!item.IsFinalAPK)
 			{
 				<SpaceItem>
-					<ProgressItem CheckConditionName="item.CheckCondition" OnclickAction="OnCheckSave"/>
+					<ProgressItem CheckConditionName="item.CheckCondition" 
+					OnclickAction="OnCheckSave" 
+					DeleteCheck="@(e=>DeleteCheck(pipline,item,e))" 
+					UpdateCheck="@(e=>UpdateCheck(pipline,item,e))"
+					AddCheck="@(()=>AddCheck(pipline,item))"
+					/>
 				</SpaceItem>
 			}
 			else
@@ -56,6 +61,24 @@
 
 
 @code {
+
+	public void DeleteCheck(ProcessPipline pip,ProcessItem item,CheckCondition check)
+	{
+		item.CheckCondition.Remove(check);
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
+
+	public void UpdateCheck(ProcessPipline pip, ProcessItem item, CheckCondition check)
+	{
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
+
+	public void AddCheck(ProcessPipline pip, ProcessItem item)
+	{
+		item.CheckCondition.Add(new CheckCondition());
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
+
 	[Parameter]
 	public string version { get; set; }
 	double size = 15;

@@ -26,9 +26,12 @@
 						<GridCol Span="4">
 								@item.VersionName
 						</GridCol>
-						<GridCol Span="4" Offset="16">
+						@if (authentication.isAdmin)
+						{
+							<GridCol Span="4" Offset="16">
 								<Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(item))"></Button>
-						</GridCol>
+							</GridCol>
+						}
 					</GridRow>
 				</MenuItem>
 			}
