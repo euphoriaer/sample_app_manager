@@ -7,7 +7,7 @@ using Blazorise.Icons.FontAwesome;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using SampleAppManager.AuthenticationSpace;
-using Blazored.LocalStorage;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -15,7 +15,6 @@ builder.Services.AddHttpClient();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
 builder.Services.AddBlazoredSessionStorage();
-builder.Services.AddBlazoredLocalStorage();
 
 builder.Services
     .AddBlazorise(options =>
@@ -57,8 +56,6 @@ using (var scope = app.Services.CreateScope())
         SeedData.InitializeUser(db);
 
     }
-
-	
 }
 
 

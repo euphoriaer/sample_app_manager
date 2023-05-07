@@ -9,9 +9,8 @@
 @inject NotificationService _notice
 @inject LiteDbContext ProcessVersionData
 @inject Authentication authentication
-@inject AuthenticationStateProvider AuthStateProvider;
 @inject ISessionStorageService SessionStorage
-@inject ILocalStorageService LocalStorage
+@inject AuthenticationStateProvider AuthStateProvider
 
 <Layout Style="min-height: 100vh; ">
 	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
@@ -124,7 +123,7 @@
 	}
 
 
-	void Login(UserItem loginUser)
+	async Task Login(UserItem loginUser)
 	{
 		if (string.IsNullOrEmpty(loginUser.UserName))
 		{
@@ -157,13 +156,14 @@
 			.Encode();
 			Debug.WriteLine(token);
 			//SaveToken
-			LocalStorage.SetItemAsync("token", token);
+			await SessionStorage.SetItemAsync("token", token);
 
 			authentication.isUpload = user.UpLoad;
 			authentication.isChecking= user.isChecking;
 			authentication.isAdmin= user.IsAdmin;
 			authentication.isNewVersion= user.IsAdmin;
-			SessionStorage.SetItemAsync("UserData", user);
+			await SessionStorage.SetItemAsync("UserData", user);
+			await AuthStateProvider.GetAuthenticationStateAsync();
 		}
 	}
 
