@@ -9,7 +9,9 @@
 @inject NotificationService _notice
 @inject LiteDbContext ProcessVersionData
 @inject Authentication authentication
+@inject AuthenticationStateProvider AuthStateProvider;
 @inject ISessionStorageService SessionStorage
+@inject ILocalStorageService LocalStorage
 
 <Layout Style="min-height: 100vh; ">
 	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
@@ -138,6 +140,25 @@
 		if (users[0].Password == loginUser.Password)
 		{
 			var user = users[0];
+			
+			if (true)
+			{
+				
+			}
+
+			//CreateToken
+			RSA certificate = RSA.Create();
+			RSA pri = RSA.Create();
+			var token = JwtBuilder.Create()
+										.WithAlgorithm(new RS256Algorithm(certificate, pri))
+										.AddClaim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds())
+										.AddClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", $"{user.UserName}")
+										.AddClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", $"{user.Role}")
+			.Encode();
+			Debug.WriteLine(token);
+			//SaveToken
+			LocalStorage.SetItemAsync("token", token);
+
 			authentication.isUpload = user.UpLoad;
 			authentication.isChecking= user.isChecking;
 			authentication.isAdmin= user.IsAdmin;

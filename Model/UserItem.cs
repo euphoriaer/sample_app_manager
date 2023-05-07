@@ -15,6 +15,8 @@ namespace SampleAppManager.Data
 		public bool UpLoad { get; set; } = true;
 
 		public bool isChecking { get; set; } = false;
+
+		public string Role { get; set; } = "Administrator";
 	}
 
 }

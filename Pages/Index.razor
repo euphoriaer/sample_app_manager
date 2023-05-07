@@ -1,3 +1,12 @@
 ﻿@page "/"
 
 Index
+
+<AuthorizeView>
+    <Authorized>
+        <span>You're authorized as @context.User.Identity.Name</span>
+    </Authorized>
+    <NotAuthorized>
+        <span>You're not authorized</span>
+    </NotAuthorized>
+</AuthorizeView>
