@@ -6,7 +6,6 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using SampleAppManager.AuthenticationSpace;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,11 +24,7 @@ builder.Services
     .AddFontAwesomeIcons();
 
 builder.Services.AddScoped<ProcessVersionWithStatus>();
-builder.Services.AddScoped<Authentication>((x) =>
-{
-	var env = x.GetRequiredService<ISessionStorageService>();
-    return new Authentication(env);
-});
+
 
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 builder.Services.AddAuthenticationCore();

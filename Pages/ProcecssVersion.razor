@@ -3,13 +3,13 @@
 @inject ProcessVersionWithStatus ProcessVersionStatus
 @inject LiteDbContext ProcessVersionData
 @inject IWebHostEnvironment Environment
-@inject Authentication authentication
+
 
 @foreach (var pipline in ProcessVersionStatus.curSelect.ProcessPiplines)
 {
 	<Divider Orientation="left" Style="font-weight:bold">
 		@pipline.PiplineName
-		@if (authentication.isUpload)
+		@if (user.IsInRole("Administrator"))
 		{
 			<Button Type="@ButtonType.Text" Shape="@ButtonShape.Circle" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(pipline))"></Button>
 		}
@@ -47,7 +47,7 @@
 	}
 	</Space>
 }
-@if (authentication.isUpload)
+@if (user.IsInRole("Administrator"))
 {
 	<div>
 		<NewPiplineDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
@@ -56,6 +56,18 @@
 
 
 @code {
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
+
+	private ClaimsPrincipal user
+	{
+		get
+		{
+			var authState = authenticationState;
+			return authState?.Result.User;
+		}
+	}
 
 	public void DeleteCheck(ProcessPipline pip,ProcessItem item,CheckCondition check)
 	{
@@ -97,10 +109,6 @@
 
 	public void OnCheckSave()
 	{
-		if (!authentication.isChecking)
-		{
-			return;
-		}
 		var pip = ProcessVersionStatus.curSelect;
 		//新的
 		var task = ProcessVersionData.ProcessVersions.Update(pip);

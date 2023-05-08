@@ -8,7 +8,6 @@
 @inject ProcessVersionWithStatus ProcessVersionStatus
 @inject NotificationService _notice
 @inject LiteDbContext ProcessVersionData
-@inject Authentication authentication
 @inject ISessionStorageService SessionStorage
 @inject AuthenticationStateProvider AuthStateProvider
 
@@ -17,22 +16,28 @@
 		<div class="logo" />
 		<Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{ProcessVersionStatus.processVersion[0].VersionName}) Mode="MenuMode.Inline">
 			<GridRow Justify="center" Align="middle">
-				@*todo 需要级联数据，刷新*@
-				<NewVersionDialoge title="新版本" OnConfirm="AddNewVersion"></NewVersionDialoge>
+				<AuthorizeView Roles="Administrator">
+					<NewVersionDialoge title="新版本" OnConfirm="AddNewVersion"></NewVersionDialoge>
+				</AuthorizeView>
 			</GridRow>
 			@foreach (var item in ProcessVersionStatus.processVersion)
 			{
 				<MenuItem Key=@item.VersionName OnClick="()=>{VersionClick(item.VersionName);}">
 					<GridRow Justify="start" Align="middle">
 						<GridCol Span="4">
-								@item.VersionName
+							@item.VersionName
 						</GridCol>
-						@if (authentication.isAdmin)
-						{
-							<GridCol Span="4" Offset="16">
-								<Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(item))"></Button>
-							</GridCol>
-						}
+						<AuthorizeView Roles="Administrator">
+							<Authorized>
+								<GridCol Span="4" Offset="16">
+									<Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(item))"></Button>
+								</GridCol>
+							</Authorized>
+							<NotAuthorized>
+								
+							</NotAuthorized>
+						</AuthorizeView>
+	
 					</GridRow>
 				</MenuItem>
 			}
@@ -41,25 +46,36 @@
 	<Layout Class="site-layout">
 		<Header Class="site-layout-background" Style=" padding: 0 ;">
 			<GridRow Justify="end">
-			<Space>
-				<SpaceItem>
-				<GridCol>	
-				<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.Home" @onclick="@(e => Home())"></Button>
-				</GridCol>
-				</SpaceItem>
+				<Space>
+					<SpaceItem>
+						<GridCol>
+							<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.Home" @onclick="@(e => Home())"></Button>
+						</GridCol>
+					</SpaceItem>
 
-				<SpaceItem>
-				<GridCol>
-				<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.UserSwitch" @onclick=EditorUser>账户管理</Button>
-				</GridCol>
-				</SpaceItem>
-				
-				<SpaceItem>
-				<GridCol>
-				<LoginDialoge title="登录" OnConfirm="Login"></LoginDialoge>
-				</GridCol>
-				</SpaceItem>
-			</Space>
+					<SpaceItem>
+						<GridCol>
+							<AuthorizeView>
+								<Authorized>
+									<LoginDialoge title="@context.User.Identity.Name" OnConfirm="Login"></LoginDialoge>
+								</Authorized>
+								<NotAuthorized>
+									<LoginDialoge title="登录" OnConfirm="Login"></LoginDialoge>
+								</NotAuthorized>
+							</AuthorizeView>
+
+						</GridCol>
+					</SpaceItem>
+
+					<AuthorizeView Roles="Administrator">
+						<SpaceItem>
+							<GridCol>
+								<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.UserSwitch" @onclick=EditorUser>账户管理</Button>
+							</GridCol>
+						</SpaceItem>
+					</AuthorizeView>
+
+				</Space>
 			</GridRow>
 		</Header>
 		@Body
@@ -70,6 +86,9 @@
 @code {
 	bool collapsed;
 
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
+
 	public void Home()
 	{
 		NavigationManager.NavigateTo("/");
@@ -79,19 +98,6 @@
 	{
 		ProcessVersionStatus.processVersion.Remove(version);
 		ProcessVersionData.ProcessVersions.Delete(version);
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		var userData = await SessionStorage.GetItemAsync<UserItem>("UserData");
-
-		if (userData != null)
-		{
-			authentication.isUpload = userData.UpLoad;
-			authentication.isAdmin = userData.IsAdmin;
-			authentication.isChecking = userData.isChecking;
-			authentication.isNewVersion = userData.UpLoad;
-		}
 	}
 
 	protected override void OnInitialized()
@@ -112,11 +118,6 @@
 
 	void AddNewVersion(ProcessVersion version)
 	{
-		//Todo form  增加新版本
-		if (!authentication.isNewVersion)
-		{
-			return;
-		}
 		version.RouteName = version.VersionName.Replace(".", "_");
 		ProcessVersionData.ProcessVersions.Add(version);
 		ProcessVersionStatus.processVersion.Add(version);
@@ -130,8 +131,8 @@
 			return;
 		}
 		//Todo  登录
-		var users= ProcessVersionData.Users.GetUser(loginUser.UserName);
-		if (users.Count==0)
+		var users = ProcessVersionData.Users.GetUser(loginUser.UserName);
+		if (users.Count == 0)
 		{
 			return;
 		}
@@ -139,10 +140,10 @@
 		if (users[0].Password == loginUser.Password)
 		{
 			var user = users[0];
-			
+
 			if (true)
 			{
-				
+
 			}
 
 			//CreateToken
@@ -157,12 +158,6 @@
 			Debug.WriteLine(token);
 			//SaveToken
 			await SessionStorage.SetItemAsync("token", token);
-
-			authentication.isUpload = user.UpLoad;
-			authentication.isChecking= user.isChecking;
-			authentication.isAdmin= user.IsAdmin;
-			authentication.isNewVersion= user.IsAdmin;
-			await SessionStorage.SetItemAsync("UserData", user);
 			await AuthStateProvider.GetAuthenticationStateAsync();
 		}
 	}
@@ -170,14 +165,14 @@
 	void VersionClick(string selectVresion)
 	{
 		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(selectVresion);
-		if (elements.Count==0)
+		if (elements.Count == 0)
 		{
 			ProcessVersionStatus.curSelect = new ProcessVersion();
 			return;
 		}
 		//todo 切到指定版本
 		var curSelectProcess = elements
-		.Where(o=>o.VersionName==selectVresion)
+		.Where(o => o.VersionName == selectVresion)
 		.ToList()
 		.First();
 
@@ -187,10 +182,6 @@
 
 	async void EditorUser()
 	{
-		if (!authentication.isAdmin)
-		{
-			return;
-		}
 		NavigationManager.NavigateTo("/UserManager");
 	}
 

@@ -1,9 +1,9 @@
-﻿@inject Authentication authentication
+﻿
 @inject LiteDbContext ProcessVersionData
 <Space Direction="DirectionVHType.Vertical" Align="center" Size=@size>
 	<SpaceItem>
 		<Space Direction="DirectionVHType.Vertical">
-			@if (authentication.isAdmin)
+			@if (user.IsInRole("Administrator"))
 			{
 				<SpaceItem>
 					<Button Type="@ButtonType.Primary" Shape="@ButtonShape.Circle" Size="@ButtonSize.Small" Icon="@IconType.Outline.Plus" OnClick="AddCheck"> </Button>
@@ -12,10 +12,10 @@
 			
 			@foreach (var item in CheckConditionName)
 			{
-				@if (authentication.isAdmin)
+				@if (user.IsInRole("Administrator"))
 				{
 					<SpaceItem>
-						<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!authentication.isChecking)>
+						<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!user.IsInRole("Administrator"))>
 							<GridRow>
 								<GridCol>
 									<Input Placeholder="输入条件" OnBlur="@(e => UpdateCheck(item))" Bordered="false" TValue="string" OnPressEnter="@(e => UpdateCheck(item))" @bind-Value=item.checkName>
@@ -29,7 +29,7 @@
 				}else
 				{
 					<SpaceItem>
-						<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!authentication.isChecking)>
+						<Checkbox @bind-Checked="item.checkState" OnChange="OnclickAction" Disabled=@(!user.IsInRole("Administrator"))>
 							@item.checkName
 						</Checkbox>
 					</SpaceItem>
@@ -60,6 +60,18 @@
 
 	[Parameter]
 	public Action AddCheck { get; set; }
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
+
+	private ClaimsPrincipal user
+	{
+		get
+		{
+			var authState = authenticationState;
+			return authState?.Result.User;
+		}
+	}
 
 	string size = "3";
 }

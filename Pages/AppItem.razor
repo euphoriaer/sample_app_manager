@@ -3,7 +3,6 @@
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClients
-@inject Authentication authentication
 <Space Direction="DirectionVHType.Vertical">
 	<SpaceItem>
 		<GridRow>
@@ -11,7 +10,7 @@
 			@bind-Value="@appSrc.Name"
 					  Bordered="false"
 					  OnPressEnter="@(e => ChangeData(appSrc))"
-					  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!authentication.isUpload) />
+				   OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
 			
 		</GridRow>
 		<GridRow>
@@ -32,7 +31,7 @@
 		{
 			<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
 		}
-		@if (authentication.isUpload
+		@if (user.IsInRole("Administrator")
 				&& string.IsNullOrEmpty(appSrc.QRcode))
 		{
 			<InputFile OnChange="@LoadFiles" multiple />
@@ -45,7 +44,7 @@
 				  MinRows="1" MaxRows="3" @bind-Value="@appSrc.Description" 
 				  Bordered="false"
 				  OnPressEnter="@(e => ChangeData(appSrc))" 
-				  OnBlur="@(e => ChangeData(appSrc))" ReadOnly =@(!authentication.isUpload)/>
+				  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
 	</SpaceItem>
 
 	<SpaceItem>
@@ -59,7 +58,7 @@
 
 			<GridCol Span="1" />
 
-			@if (authentication.isUpload
+			@if (user.IsInRole("Administrator")
 					&& !string.IsNullOrEmpty(appSrc.QRcode))
 			{
 				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
@@ -90,14 +89,20 @@
 	[Parameter]
 	public Action<APKItem> ChangeData { get; set; }
 
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
 
+	private ClaimsPrincipal user 
+	{
+		get
+		{
+			var authState = authenticationState;
+			return authState?.Result.User;
+		}
+	}
 	private async Task LoadFiles(InputFileChangeEventArgs e)
 	{
-		if (!authentication.isUpload)
-		{
-			return;
-		}
-
+	
 		isLoading = true;
 		loadedFiles.Clear();
 
