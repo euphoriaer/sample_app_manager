@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace SampleAppManager.Data
@@ -11,12 +12,25 @@ namespace SampleAppManager.Data
 
 		public List<ProcessPipline> ProcessPiplines { get; set; } = new List<ProcessPipline>();
 
+		public List<APKItem> GetAPKItems()
+		{
+			List<APKItem> items = new List<APKItem>();
+			for (int i = 0; i < ProcessPiplines.Count; i++)
+			{
+				for (int j = 0; j < ProcessPiplines[i].ProcessItems.Count; j++)
+				{
+					var app = ProcessPiplines[i].ProcessItems[j].Apk;
+					items.Add(app);
+				}
+			}
+			return items;
+		}
 	}
 
 	public class ProcessPipline
 	{
 
-        public string PiplineName { get; set; } = "Default";
+		public string PiplineName { get; set; } = "Default";
 
 		public List<ProcessItem> ProcessItems { get; set; } = new List<ProcessItem>();
 	}

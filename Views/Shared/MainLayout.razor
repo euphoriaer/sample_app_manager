@@ -119,6 +119,7 @@
 	void AddNewVersion(ProcessVersion version)
 	{
 		version.RouteName = version.VersionName.Replace(".", "_");
+		ProcessVersionData.Apps.Add(version.GetAPKItems().ToArray());
 		ProcessVersionData.ProcessVersions.Add(version);
 		ProcessVersionStatus.processVersion.Add(version);
 	}

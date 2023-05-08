@@ -2,6 +2,8 @@
 
 Index
 
+@inject LiteDbContext Data
+
 <AuthorizeView>
     <Authorized>
         <span>You're authorized as @context.User.Identity.Name</span>
@@ -10,3 +12,17 @@ Index
         <span>You're not authorized</span>
     </NotAuthorized>
 </AuthorizeView>
+<span>AppList</span>
+@for (int i = 0; i < appItems.Count; i++)
+{
+    <span>ID @appItems[i].CustomerId</span>
+    <span>Name @appItems[i].Name</span>
+}
+
+@code{
+    List<APKItem> appItems = new List<APKItem>();
+    protected override void OnInitialized()
+    {
+        appItems = Data.Apps.Get();
+    }
+}
