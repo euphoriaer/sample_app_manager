@@ -14,7 +14,7 @@
 <Layout Style="min-height: 100vh; ">
 	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
 		<div class="logo" />
-		<Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{SelectName}) Mode="MenuMode.Inline">
+		<Menu Theme="MenuTheme.Dark"  Mode="MenuMode.Inline" SelectedKeys="SelectName">
 			<GridRow Justify="center" Align="middle">
 				<AuthorizeView Roles="Administrator">
 					<NewVersionDialoge title="新版本" OnConfirm="AddNewVersion"></NewVersionDialoge>
@@ -89,10 +89,7 @@
 	[CascadingParameter]
 	private Task<AuthenticationState>? authenticationState { get; set; }
 
-	private string SelectName {
-		get;
-		set;
-	}
+	private string[] SelectName;
 
 
 	public void Home()
@@ -113,20 +110,11 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		SelectName = await SessionStorage.GetItemAsStringAsync("SelectVersionName");
-		if (SelectName=="v1.6")
+		var versionName = await SessionStorage.GetItemAsStringAsync("SelectVersionName");
+		if (!string.IsNullOrEmpty(versionName))
 		{
-
-		}
-		if (SelectName==null)
-		{
-			return;
-		}
-		var x = "v1.6";
-		SelectName=SelectName.Replace("\"", "");
-		if (SelectName == "v1.6")
-		{
-
+			versionName = versionName.Replace("\"", "");
+			SelectName = new string[] { versionName };
 		}
 	}
 
@@ -198,6 +186,7 @@
 		.ToList()
 		.First();
 
+		SelectName = new string[] { curSelectProcess.VersionName };
 		SessionStorage.SetItemAsync("SelectVersionName", curSelectProcess.VersionName);
 		ProcessVersionStatus.curSelect = curSelectProcess;
 		NavigationManager.NavigateTo($"/ProcessVersion/{ProcessVersionStatus.curSelect.RouteName}");
