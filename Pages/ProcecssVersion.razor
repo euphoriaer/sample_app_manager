@@ -98,7 +98,19 @@
 
 	protected override void OnInitialized()
 	{
+		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(version);
+		if (elements.Count == 0)
+		{
+			ProcessVersionStatus.curSelect = new ProcessVersion();
+			return;
+		}
+		//todo 切到指定版本
+		var curSelectProcess = elements
+		.Where(o => o.RouteName == version)
+		.ToList()
+		.First();
 
+		ProcessVersionStatus.curSelect = curSelectProcess;
 	}
 
 	protected override async Task OnInitializedAsync()

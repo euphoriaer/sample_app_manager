@@ -48,13 +48,13 @@ namespace SampleAppManager.LiteDB
 				}
 			}
 
-			public List<ProcessVersion> GetProcessVersion(string VersionName)
+			public List<ProcessVersion> GetProcessVersion(string RouteName)
 			{
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
 					var res= col.Query()
-					.Where(x => x.VersionName == VersionName);
+					.Where(x => x.RouteName == RouteName);
 
                     return res.ToList();
 				}

@@ -14,7 +14,7 @@
 <Layout Style="min-height: 100vh; ">
 	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
 		<div class="logo" />
-		<Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{ProcessVersionStatus.processVersion[0].VersionName}) Mode="MenuMode.Inline">
+		<Menu Theme="MenuTheme.Dark" DefaultSelectedKeys=@(new[]{SelectName}) Mode="MenuMode.Inline">
 			<GridRow Justify="center" Align="middle">
 				<AuthorizeView Roles="Administrator">
 					<NewVersionDialoge title="新版本" OnConfirm="AddNewVersion"></NewVersionDialoge>
@@ -22,7 +22,7 @@
 			</GridRow>
 			@foreach (var item in ProcessVersionStatus.processVersion)
 			{
-				<MenuItem Key=@item.VersionName OnClick="()=>{VersionClick(item.VersionName);}">
+				<MenuItem Key=@item.VersionName OnClick="()=>{VersionClick(item.RouteName);}">
 					<GridRow Justify="start" Align="middle">
 						<GridCol Span="4">
 							@item.VersionName
@@ -89,6 +89,12 @@
 	[CascadingParameter]
 	private Task<AuthenticationState>? authenticationState { get; set; }
 
+	private string SelectName {
+		get;
+		set;
+	}
+
+
 	public void Home()
 	{
 		NavigationManager.NavigateTo("/");
@@ -102,12 +108,26 @@
 
 	protected override void OnInitialized()
 	{
-		ProcessVersionStatus.processVersion = new List<ProcessVersion>();
-		ProcessVersionStatus.curSelect = new ProcessVersion();
 		ProcessVersionStatus.processVersion = ProcessVersionData.ProcessVersions.GetProcessVersion();
-		ProcessVersionStatus.curSelect = ProcessVersionStatus.processVersion[0];
+	}
 
+	protected override async Task OnInitializedAsync()
+	{
+		SelectName = await SessionStorage.GetItemAsStringAsync("SelectVersionName");
+		if (SelectName=="v1.6")
+		{
 
+		}
+		if (SelectName==null)
+		{
+			return;
+		}
+		var x = "v1.6";
+		SelectName=SelectName.Replace("\"", "");
+		if (SelectName == "v1.6")
+		{
+
+		}
 	}
 
 	void onCollapse(bool collapsed)
@@ -163,9 +183,10 @@
 		}
 	}
 
-	void VersionClick(string selectVresion)
+	void VersionClick(string routeName)
 	{
-		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(selectVresion);
+		//SaveToken
+		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(routeName);
 		if (elements.Count == 0)
 		{
 			ProcessVersionStatus.curSelect = new ProcessVersion();
@@ -173,10 +194,11 @@
 		}
 		//todo 切到指定版本
 		var curSelectProcess = elements
-		.Where(o => o.VersionName == selectVresion)
+		.Where(o => o.RouteName == routeName)
 		.ToList()
 		.First();
 
+		SessionStorage.SetItemAsync("SelectVersionName", curSelectProcess.VersionName);
 		ProcessVersionStatus.curSelect = curSelectProcess;
 		NavigationManager.NavigateTo($"/ProcessVersion/{ProcessVersionStatus.curSelect.RouteName}");
 	}
