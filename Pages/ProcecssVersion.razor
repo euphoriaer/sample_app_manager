@@ -5,8 +5,16 @@
 @inject IWebHostEnvironment Environment
 
 
-@foreach (var pipline in ProcessVersionStatus.curSelect.ProcessPiplines)
+@if (user.IsInRole("Administrator"))
 {
+	<div>
+		<NewPiplineDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
+	</div>
+}
+
+@for (int i = ProcessVersionStatus.curSelect.ProcessPiplines.Count-1; i >=0 ; i--)
+{
+	var pipline = ProcessVersionStatus.curSelect.ProcessPiplines[i];
 	<Divider Orientation="left" Style="font-weight:bold">
 		@pipline.PiplineName
 		@if (user.IsInRole("Administrator"))
@@ -26,17 +34,16 @@
 				var pip = ProcessVersionStatus.curSelect;
 				//新的
 				var task = ProcessVersionData.ProcessVersions.Update(pip);
-				}"/>
+				}" />
 			</SpaceItem>
 			@if (!item.IsFinalAPK)
 			{
 				<SpaceItem>
-					<ProgressItem CheckConditionName="item.CheckCondition" 
-					OnclickAction="OnCheckSave" 
-					DeleteCheck="@(e=>DeleteCheck(pipline,item,e))" 
-					UpdateCheck="@(e=>UpdateCheck(pipline,item,e))"
-					AddCheck="@(()=>AddCheck(pipline,item))"
-					/>
+					<ProgressItem CheckConditionName="item.CheckCondition"
+					  OnclickAction="OnCheckSave"
+					  DeleteCheck="@(e=>DeleteCheck(pipline,item,e))"
+					  UpdateCheck="@(e=>UpdateCheck(pipline,item,e))"
+					  AddCheck="@(()=>AddCheck(pipline,item))" />
 				</SpaceItem>
 			}
 			else
@@ -44,16 +51,9 @@
 				break;
 			}
 
-	}
+		}
 	</Space>
 }
-@if (user.IsInRole("Administrator"))
-{
-	<div>
-		<NewPiplineDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
-	</div>
-}
-
 
 @code {
 
