@@ -1,4 +1,5 @@
 ﻿@page "/ProcessVersion/{version}"
+@using System.Diagnostics;
 @inject NavigationManager NavigationManager
 @inject ProcessVersionWithStatus ProcessVersionStatus
 @inject LiteDbContext ProcessVersionData
@@ -48,6 +49,9 @@
 			}
 			else
 			{
+				<Image Width="100px" Src="img/ItemAdd.png" Preview=false OnClick="@(e =>
+				 Debug.WriteLine("按钮点击测试")
+					)"/>
 				break;
 			}
 
