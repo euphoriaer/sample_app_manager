@@ -13,7 +13,7 @@
 	</div>
 }
 
-@for (int i = ProcessVersionStatus.curSelect.ProcessPiplines.Count-1; i >=0 ; i--)
+@for (int i = ProcessVersionStatus.curSelect.ProcessPiplines.Count - 1; i >= 0; i--)
 {
 	var pipline = ProcessVersionStatus.curSelect.ProcessPiplines[i];
 	<Divider Orientation="left" Style="font-weight:bold">
@@ -49,9 +49,25 @@
 			}
 			else
 			{
-				<Image Width="100px" Src="img/ItemAdd.png" Preview=false OnClick="@(e =>
-				 Debug.WriteLine("按钮点击测试")
-					)"/>
+				@if (user.IsInRole("Administrator"))
+				{
+					<SpaceItem>
+						<Space Size="@($"{add_size}")" Direction="DirectionVHType.Vertical" Align="center">
+							<SpaceItem>
+								<Image Width="200px" Src="img/ItemAdd.png" Preview=false OnClick="@(e =>
+				 AddItem(pipline,item)
+					)" />
+							</SpaceItem>
+							<SpaceItem>
+								<Button Type="@ButtonType.Link" OnClick="@(e =>
+				AddItem(pipline,item)
+					)">
+									Add New App
+								</Button>
+							</SpaceItem>
+						</Space>
+					</SpaceItem>
+				}
 				break;
 			}
 
@@ -64,6 +80,8 @@
 	[CascadingParameter]
 	private Task<AuthenticationState>? authenticationState { get; set; }
 
+	private int add_size = 30;
+
 	private ClaimsPrincipal user
 	{
 		get
@@ -73,7 +91,7 @@
 		}
 	}
 
-	public void DeleteCheck(ProcessPipline pip,ProcessItem item,CheckCondition check)
+	public void DeleteCheck(ProcessPipline pip, ProcessItem item, CheckCondition check)
 	{
 		item.CheckCondition.Remove(check);
 		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
@@ -89,6 +107,17 @@
 		item.CheckCondition.Add(new CheckCondition());
 		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
 	}
+
+	public void AddItem(ProcessPipline pip, ProcessItem item)
+	{
+		item.IsFinalAPK = false;
+		pip.ProcessItems.Add(new ProcessItem()
+			{
+				IsFinalAPK = true
+			});
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
+
 
 	[Parameter]
 	public string version { get; set; }
@@ -139,7 +168,7 @@
 		for (int i = 0; i < line.ProcessItems.Count; i++)
 		{
 			var curProcessItem = line.ProcessItems[i];
-			if (i == line.ProcessItems.Count-1)
+			if (i == line.ProcessItems.Count - 1)
 			{
 				curProcessItem.IsFinalAPK = true;
 			}
@@ -149,7 +178,7 @@
 
 		var pip = ProcessVersionStatus.curSelect;
 		//新的
-		var task= ProcessVersionData.ProcessVersions.Update(pip);
+		var task = ProcessVersionData.ProcessVersions.Update(pip);
 	}
 
 	public async void OnCancel()

@@ -28,7 +28,10 @@
 	<SpaceItem>
 		@if (isLoading)
 		{
-			<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
+			<div style="width: 200px;">
+				<Progress Percent=progressPercent Size="@ProgressSize.Small" />
+			</div>
+			//<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
 		}
 		@if (user.IsInRole("Administrator")
 				&& string.IsNullOrEmpty(appSrc.QRcode))
@@ -79,7 +82,7 @@
 @code {
 	[Parameter]
 	public APKItem appSrc { get; set; }
-	private decimal progressPercent;
+	private int progressPercent;
 	private List<IBrowserFile> loadedFiles = new();
 	private long maxFileSize = long.MaxValue;
 	private int maxAllowedFiles = 1;
@@ -101,7 +104,7 @@
 	}
 	private async Task LoadFiles(InputFileChangeEventArgs e)
 	{
-	
+
 		isLoading = true;
 		loadedFiles.Clear();
 
@@ -134,8 +137,8 @@
 
 					await writeStream.WriteAsync(buffer, 0, bytesRead);
 
-					progressPercent = Decimal.Divide(totalRead, file.Size);
-
+					var process = Decimal.Divide(totalRead, file.Size);
+					progressPercent = (int)(process*100);
 					StateHasChanged();
 				}
 
