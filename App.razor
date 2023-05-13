@@ -1,6 +1,13 @@
-﻿<Router AppAssembly="@typeof(MainLayout).Assembly">
+﻿
+<CascadingAuthenticationState>
+    <AntContainer />
+<Router AppAssembly="@typeof(MainLayout).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="@typeof(MainLayout)" />
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    Sorry
+                </NotAuthorized>
+            </AuthorizeRouteView>
     </Found>
     <NotFound>
         <LayoutView Layout="@typeof(MainLayout)">
@@ -8,3 +15,4 @@
         </LayoutView>
     </NotFound>
 </Router>
+</CascadingAuthenticationState>

@@ -1,3 +1,44 @@
 ﻿@page "/"
 
 Index
+
+@inject LiteDbContext Data
+
+<div>
+	<GridRow>
+
+		<GridCol Span="12">
+			<Layout>
+				<AuthorizeView>
+					<Authorized>
+						<span>You're authorized as @context.User.Identity.Name</span>
+					</Authorized>
+					<NotAuthorized>
+						<span>You're not authorized</span>
+					</NotAuthorized>
+				</AuthorizeView>
+			</Layout>
+		</GridCol>
+
+		<GridCol Span="12">
+			<Layout>
+				<span>AppList</span>
+				@for (int i = 0; i < appItems.Count; i++)
+				{
+					<span>ID @appItems[i].CustomerId</span>
+					<span>Name @appItems[i].Name</span>
+					<span>Name @appItems[i].CustomerId.CreationTime</span>
+				}
+			</Layout>
+		</GridCol>
+
+	</GridRow>
+</div>
+
+@code {
+	List<APKItem> appItems = new List<APKItem>();
+	protected override void OnInitialized()
+	{
+		appItems = Data.Apps.Get();
+	}
+}

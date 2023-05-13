@@ -22,7 +22,7 @@
     public bool _visible = false;
 
     [Parameter] public Action OnCancel { get; set; }
-    [Parameter] public Action<UserItem> OnConfirm { get; set; }
+    [Parameter] public Func<UserItem,Task> OnConfirm { get; set; }
 
 
     public UserItem userItemState;

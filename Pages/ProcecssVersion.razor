@@ -1,20 +1,24 @@
 ﻿@page "/ProcessVersion/{version}"
-@using SampleAppManager.LiteDB;
-@using SampleAppManager.Model;
-@using SampleAppManager.Pages.Dialoge;
+@using System.Diagnostics;
 @inject NavigationManager NavigationManager
-
-@using static SampleAppManager.Pages.ProgressItem;
 @inject ProcessVersionWithStatus ProcessVersionStatus
 @inject LiteDbContext ProcessVersionData
 @inject IWebHostEnvironment Environment
-@inject Authentication authentication
 
-@foreach (var pipline in ProcessVersionStatus.curSelect.ProcessPiplines)
+
+@if (user.IsInRole("Administrator"))
 {
+	<div>
+		<NewPiplineDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
+	</div>
+}
+
+@for (int i = ProcessVersionStatus.curSelect.ProcessPiplines.Count - 1; i >= 0; i--)
+{
+	var pipline = ProcessVersionStatus.curSelect.ProcessPiplines[i];
 	<Divider Orientation="left" Style="font-weight:bold">
 		@pipline.PiplineName
-		@if (authentication.isUpload)
+		@if (user.IsInRole("Administrator"))
 		{
 			<Button Type="@ButtonType.Text" Shape="@ButtonShape.Circle" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(pipline))"></Button>
 		}
@@ -31,38 +35,63 @@
 				var pip = ProcessVersionStatus.curSelect;
 				//新的
 				var task = ProcessVersionData.ProcessVersions.Update(pip);
-				}"/>
+				}" />
 			</SpaceItem>
 			@if (!item.IsFinalAPK)
 			{
 				<SpaceItem>
-					<ProgressItem CheckConditionName="item.CheckCondition" 
-					OnclickAction="OnCheckSave" 
-					DeleteCheck="@(e=>DeleteCheck(pipline,item,e))" 
-					UpdateCheck="@(e=>UpdateCheck(pipline,item,e))"
-					AddCheck="@(()=>AddCheck(pipline,item))"
-					/>
+					<ProgressItem CheckConditionName="item.CheckCondition"
+					  OnclickAction="OnCheckSave"
+					  DeleteCheck="@(e=>DeleteCheck(pipline,item,e))"
+					  UpdateCheck="@(e=>UpdateCheck(pipline,item,e))"
+					  AddCheck="@(()=>AddCheck(pipline,item))" />
 				</SpaceItem>
 			}
 			else
 			{
+				@if (user.IsInRole("Administrator"))
+				{
+					<SpaceItem>
+						<Space Size="@($"{add_size}")" Direction="DirectionVHType.Vertical" Align="center">
+							<SpaceItem>
+								<Image Width="200px" Src="img/ItemAdd.png" Preview=false OnClick="@(e =>
+				 AddItem(pipline,item)
+					)" />
+							</SpaceItem>
+							<SpaceItem>
+								<Button Type="@ButtonType.Link" OnClick="@(e =>
+				AddItem(pipline,item)
+					)">
+									Add New App
+								</Button>
+							</SpaceItem>
+						</Space>
+					</SpaceItem>
+				}
 				break;
 			}
 
-	}
+		}
 	</Space>
 }
-@if (authentication.isUpload)
-{
-	<div>
-		<NewPiplineDialoge OnCancel="OnCancel" OnConfirm="OnConfirm" />
-	</div>
-}
-
 
 @code {
 
-	public void DeleteCheck(ProcessPipline pip,ProcessItem item,CheckCondition check)
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
+
+	private int add_size = 30;
+
+	private ClaimsPrincipal user
+	{
+		get
+		{
+			var authState = authenticationState;
+			return authState?.Result.User;
+		}
+	}
+
+	public void DeleteCheck(ProcessPipline pip, ProcessItem item, CheckCondition check)
 	{
 		item.CheckCondition.Remove(check);
 		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
@@ -79,6 +108,17 @@
 		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
 	}
 
+	public void AddItem(ProcessPipline pip, ProcessItem item)
+	{
+		item.IsFinalAPK = false;
+		pip.ProcessItems.Add(new ProcessItem()
+			{
+				IsFinalAPK = true
+			});
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
+
+
 	[Parameter]
 	public string version { get; set; }
 	double size = 15;
@@ -91,7 +131,19 @@
 
 	protected override void OnInitialized()
 	{
+		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(version);
+		if (elements.Count == 0)
+		{
+			ProcessVersionStatus.curSelect = new ProcessVersion();
+			return;
+		}
+		//todo 切到指定版本
+		var curSelectProcess = elements
+		.Where(o => o.RouteName == version)
+		.ToList()
+		.First();
 
+		ProcessVersionStatus.curSelect = curSelectProcess;
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -102,10 +154,6 @@
 
 	public void OnCheckSave()
 	{
-		if (!authentication.isChecking)
-		{
-			return;
-		}
 		var pip = ProcessVersionStatus.curSelect;
 		//新的
 		var task = ProcessVersionData.ProcessVersions.Update(pip);
@@ -120,7 +168,7 @@
 		for (int i = 0; i < line.ProcessItems.Count; i++)
 		{
 			var curProcessItem = line.ProcessItems[i];
-			if (i == line.ProcessItems.Count-1)
+			if (i == line.ProcessItems.Count - 1)
 			{
 				curProcessItem.IsFinalAPK = true;
 			}
@@ -130,7 +178,7 @@
 
 		var pip = ProcessVersionStatus.curSelect;
 		//新的
-		var task= ProcessVersionData.ProcessVersions.Update(pip);
+		var task = ProcessVersionData.ProcessVersions.Update(pip);
 	}
 
 	public async void OnCancel()

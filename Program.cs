@@ -5,6 +5,8 @@ using SampleAppManager.Model;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components.Authorization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -12,6 +14,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
 builder.Services.AddBlazoredSessionStorage();
+
 builder.Services
     .AddBlazorise(options =>
     {
@@ -21,11 +24,11 @@ builder.Services
     .AddFontAwesomeIcons();
 
 builder.Services.AddScoped<ProcessVersionWithStatus>();
-builder.Services.AddScoped<Authentication>((x) =>
-{
-	var env = x.GetRequiredService<ISessionStorageService>();
-    return new Authentication(env);
-});
+
+
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
+builder.Services.AddAuthenticationCore();
+
 builder.Services.AddScoped<LiteDbContext>((x) => {
     var env= x.GetRequiredService<IWebHostEnvironment>();
     var path= Path.Combine(env.ContentRootPath,"Data.db");
@@ -48,8 +51,6 @@ using (var scope = app.Services.CreateScope())
         SeedData.InitializeUser(db);
 
     }
-
-	
 }
 
 

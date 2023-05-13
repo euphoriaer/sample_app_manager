@@ -1,0 +1,213 @@
+﻿@using SampleAppManager.LiteDB;
+@using SampleAppManager.Model;
+@using SampleAppManager.Pages.Dialoge;
+@using System.Diagnostics;
+@inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
+@inject HttpClient HttpClient
+@inject ProcessVersionWithStatus ProcessVersionStatus
+@inject NotificationService _notice
+@inject LiteDbContext ProcessVersionData
+@inject ISessionStorageService SessionStorage
+@inject AuthenticationStateProvider AuthStateProvider
+
+<Layout Style="min-height: 100vh; ">
+	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
+		<div class="logo" />
+		<Menu Theme="MenuTheme.Dark"  Mode="MenuMode.Inline" SelectedKeys="SelectName">
+			<GridRow Justify="center" Align="middle">
+				<AuthorizeView Roles="Administrator">
+					<NewVersionDialoge title="新版本" OnConfirm="AddNewVersion"></NewVersionDialoge>
+				</AuthorizeView>
+			</GridRow>
+			@foreach (var item in ProcessVersionStatus.processVersion)
+			{
+				<MenuItem Key=@item.VersionName OnClick="()=>{VersionClick(item.RouteName);}">
+					<GridRow Justify="start" Align="middle">
+						<GridCol Span="4">
+							@item.VersionName
+						</GridCol>
+						<AuthorizeView Roles="Administrator">
+							<Authorized>
+								<GridCol Span="4" Offset="16">
+									<Button Type="@ButtonType.Primary" Size="@ButtonSize.Small" Icon="@IconType.Outline.Delete" @onclick="@(e => Delete(item))"></Button>
+								</GridCol>
+							</Authorized>
+							<NotAuthorized>
+								
+							</NotAuthorized>
+						</AuthorizeView>
+	
+					</GridRow>
+				</MenuItem>
+			}
+		</Menu>
+	</Sider>
+	<Layout Class="site-layout">
+		<Header Class="site-layout-background" Style=" padding: 0 ;">
+			<GridRow Justify="end">
+				<Space>
+					<SpaceItem>
+						<GridCol>
+							<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.Home" @onclick="@(e => Home())"></Button>
+						</GridCol>
+					</SpaceItem>
+
+					<SpaceItem>
+						<GridCol>
+							<AuthorizeView>
+								<Authorized>
+									<LoginDialoge title="@context.User.Identity.Name" OnConfirm="Login"></LoginDialoge>
+								</Authorized>
+								<NotAuthorized>
+									<LoginDialoge title="登录" OnConfirm="Login"></LoginDialoge>
+								</NotAuthorized>
+							</AuthorizeView>
+
+						</GridCol>
+					</SpaceItem>
+
+					<AuthorizeView Roles="Administrator">
+						<SpaceItem>
+							<GridCol>
+								<Button Type="@ButtonType.Primary" Size="@ButtonSize.Large" Icon="@IconType.Outline.UserSwitch" @onclick=EditorUser>账户管理</Button>
+							</GridCol>
+						</SpaceItem>
+					</AuthorizeView>
+
+				</Space>
+			</GridRow>
+		</Header>
+		@Body
+	</Layout>
+</Layout>
+
+
+@code {
+	bool collapsed;
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
+
+	private string[] SelectName;
+
+
+	public void Home()
+	{
+		NavigationManager.NavigateTo("/");
+	}
+
+	public void Delete(ProcessVersion version)
+	{
+		ProcessVersionStatus.processVersion.Remove(version);
+		ProcessVersionData.ProcessVersions.Delete(version);
+	}
+
+	protected override void OnInitialized()
+	{
+		ProcessVersionStatus.processVersion = ProcessVersionData.ProcessVersions.GetProcessVersion();
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		var versionName = await SessionStorage.GetItemAsStringAsync("SelectVersionName");
+		if (!string.IsNullOrEmpty(versionName))
+		{
+			versionName = versionName.Replace("\"", "");
+			SelectName = new string[] { versionName };
+		}
+	}
+
+	void onCollapse(bool collapsed)
+	{
+		Console.WriteLine(collapsed);
+		this.collapsed = collapsed;
+	}
+
+	void AddNewVersion(ProcessVersion version)
+	{
+		version.RouteName = version.VersionName.Replace(".", "_");
+		ProcessVersionData.Apps.Add(version.GetAPKItems().ToArray());
+		ProcessVersionData.ProcessVersions.Add(version);
+		ProcessVersionStatus.processVersion.Add(version);
+	}
+
+
+	async Task Login(UserItem loginUser)
+	{
+		if (string.IsNullOrEmpty(loginUser.UserName))
+		{
+			return;
+		}
+		//Todo  登录
+		var users = ProcessVersionData.Users.GetUser(loginUser.UserName);
+		if (users.Count == 0)
+		{
+			return;
+		}
+
+		if (users[0].Password == loginUser.Password)
+		{
+			var user = users[0];
+
+			if (true)
+			{
+
+			}
+
+			//CreateToken
+			RSA certificate = RSA.Create();
+			RSA pri = RSA.Create();
+			var token = JwtBuilder.Create()
+										.WithAlgorithm(new RS256Algorithm(certificate, pri))
+										.AddClaim("exp", DateTimeOffset.UtcNow.AddDays(7).ToUnixTimeSeconds())
+										.AddClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name", $"{user.UserName}")
+										.AddClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", $"{user.Role}")
+			.Encode();
+			Debug.WriteLine(token);
+			//SaveToken
+			await SessionStorage.SetItemAsync("token", token);
+			await AuthStateProvider.GetAuthenticationStateAsync();
+		}
+	}
+
+	void VersionClick(string routeName)
+	{
+		//SaveToken
+		var elements = ProcessVersionData.ProcessVersions.GetProcessVersion(routeName);
+		if (elements.Count == 0)
+		{
+			ProcessVersionStatus.curSelect = new ProcessVersion();
+			return;
+		}
+		//todo 切到指定版本
+		var curSelectProcess = elements
+		.Where(o => o.RouteName == routeName)
+		.ToList()
+		.First();
+
+		SelectName = new string[] { curSelectProcess.VersionName };
+		SessionStorage.SetItemAsync("SelectVersionName", curSelectProcess.VersionName);
+		ProcessVersionStatus.curSelect = curSelectProcess;
+		NavigationManager.NavigateTo($"/ProcessVersion/{ProcessVersionStatus.curSelect.RouteName}");
+	}
+
+	async void EditorUser()
+	{
+		NavigationManager.NavigateTo("/UserManager");
+	}
+
+}
+
+
+<style>
+	#components-layout-demo-side .logo {
+		height: 32px;
+		background: rgba(255, 255, 255, 0.2);
+		margin: 16px;
+	}
+
+	.site-layout .site-layout-background {
+		background: #fff;
+	}
+</style>

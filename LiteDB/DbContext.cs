@@ -1,5 +1,7 @@
 ﻿using LiteDB;
 using SampleAppManager.Data;
+using static SampleAppManager.LiteDB.LiteDbContext;
+
 
 namespace SampleAppManager.LiteDB
 {
@@ -8,12 +10,13 @@ namespace SampleAppManager.LiteDB
 		private string _dbConnectionString;
 		public User Users;
 		public ProcessVersionDb ProcessVersions;
-
+		public AppData Apps;
 		public LiteDbContext(string dbPath)
 		{
 			_dbConnectionString = dbPath;
 			Users = new User(dbPath);
 			ProcessVersions = new ProcessVersionDb(dbPath);
+			Apps = new AppData(dbPath);
 		}
 
 		public LiteDatabase GetDB()
@@ -40,29 +43,33 @@ namespace SampleAppManager.LiteDB
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
-					var list = col.FindAll().ToList();
+					var list = col.FindAll().OrderBy(x=>x.CustomerId.CreationTime).ToList();
 					return list;
 				}
 			}
 
-			public List<ProcessVersion> GetProcessVersion(string VersionName)
+			public List<ProcessVersion> GetProcessVersion(string RouteName)
 			{
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
 					var res= col.Query()
-					.Where(x => x.VersionName == VersionName);
+					.Where(x => x.RouteName == RouteName);
 
                     return res.ToList();
 				}
 			}
 
-			public bool Update(ProcessVersion user)
+			public bool Update(ProcessVersion item)
 			{
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
-					return col.Update(user);
+
+					var apks= db.GetCollection<APKItem>();
+					var upDateApk= item.GetAPKItems();
+					apks.Upsert(upDateApk);
+                    return col.Update(item);
 				}
 			}
 
@@ -80,7 +87,19 @@ namespace SampleAppManager.LiteDB
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
-					bool isOk=col.Delete(version.RouteName);
+
+					var apks = db.GetCollection<APKItem>();
+					var upDateApk = version.GetAPKItems();
+					for (int i = 0; i < upDateApk.Count; i++)
+					{
+						if (upDateApk[i].CustomerId == null)
+						{
+							continue;
+						}
+						apks.Delete(upDateApk[i].CustomerId);
+					}
+
+					bool isOk=col.Delete(version.CustomerId);
 				}
 			}
 		}
@@ -142,6 +161,68 @@ namespace SampleAppManager.LiteDB
 				{
 					var col = db.GetCollection<UserItem>();
 					col.Delete(userName);
+				}
+			}
+		}
+
+		public class AppData
+		{
+			private string dbPath;
+
+			public LiteDatabase GetDB()
+			{
+				return new LiteDatabase(dbPath);
+			}
+
+			public AppData(string dbPath)
+			{
+				this.dbPath = dbPath;
+			}
+
+			public List<APKItem> Get()
+			{
+				using (var db = GetDB())
+				{
+					var col = db.GetCollection<APKItem>();
+					var list = col.FindAll().ToList();
+					return list;
+				}
+			}
+			public List<APKItem> Get(ObjectId apkID)
+			{
+				var id = ObjectId.NewObjectId();
+				using (var db = GetDB())
+				{
+					var col = db.GetCollection<APKItem>();
+					var list = col.Query().Where(x => x.CustomerId == apkID).ToList();
+					return list;
+				}
+			}
+
+			public bool Update(APKItem item)
+			{
+				using (var db = GetDB())
+				{
+					var col = db.GetCollection<APKItem>();
+					return col.Update(item);
+				}
+			}
+
+			public void Add(params APKItem[] item)
+			{
+				using (var db = GetDB())
+				{
+					var col = db.GetCollection<APKItem>();
+					col.Insert(item);
+				}
+			}
+
+			public void Delete(string name)
+			{
+				using (var db = GetDB())
+				{
+					var col = db.GetCollection<APKItem>();
+					col.Delete(name);
 				}
 			}
 		}

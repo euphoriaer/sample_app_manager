@@ -1,12 +1,8 @@
-﻿@using Blazorise.QRCode
-@using Microsoft.AspNetCore.Components.Forms;
-@using SampleAppManager.Model;
-@using System.Security.Policy;
+﻿@inject IMessageService _message
 @inject IWebHostEnvironment Environment
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClients
-@inject Authentication authentication
 <Space Direction="DirectionVHType.Vertical">
 	<SpaceItem>
 		<GridRow>
@@ -14,8 +10,7 @@
 			@bind-Value="@appSrc.Name"
 					  Bordered="false"
 					  OnPressEnter="@(e => ChangeData(appSrc))"
-					  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!authentication.isUpload) />
-			
+				   OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
 		</GridRow>
 		<GridRow>
 			@if (!string.IsNullOrEmpty(appSrc.QRcode))
@@ -33,9 +28,12 @@
 	<SpaceItem>
 		@if (isLoading)
 		{
-			<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
+			<div style="width: 200px;">
+				<Progress Percent=progressPercent Size="@ProgressSize.Small" />
+			</div>
+			//<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
 		}
-		@if (authentication.isUpload
+		@if (user.IsInRole("Administrator")
 				&& string.IsNullOrEmpty(appSrc.QRcode))
 		{
 			<InputFile OnChange="@LoadFiles" multiple />
@@ -48,7 +46,7 @@
 				  MinRows="1" MaxRows="3" @bind-Value="@appSrc.Description" 
 				  Bordered="false"
 				  OnPressEnter="@(e => ChangeData(appSrc))" 
-				  OnBlur="@(e => ChangeData(appSrc))" ReadOnly =@(!authentication.isUpload)/>
+				  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
 	</SpaceItem>
 
 	<SpaceItem>
@@ -62,7 +60,7 @@
 
 			<GridCol Span="1" />
 
-			@if (authentication.isUpload
+			@if (user.IsInRole("Administrator")
 					&& !string.IsNullOrEmpty(appSrc.QRcode))
 			{
 				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
@@ -82,9 +80,10 @@
 </style>
 
 @code {
+
 	[Parameter]
 	public APKItem appSrc { get; set; }
-	private decimal progressPercent;
+	private int progressPercent;
 	private List<IBrowserFile> loadedFiles = new();
 	private long maxFileSize = long.MaxValue;
 	private int maxAllowedFiles = 1;
@@ -93,13 +92,19 @@
 	[Parameter]
 	public Action<APKItem> ChangeData { get; set; }
 
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
 
+	private ClaimsPrincipal user 
+	{
+		get
+		{
+			var authState = authenticationState;
+			return authState?.Result.User;
+		}
+	}
 	private async Task LoadFiles(InputFileChangeEventArgs e)
 	{
-		if (!authentication.isUpload)
-		{
-			return;
-		}
 
 		isLoading = true;
 		loadedFiles.Clear();
@@ -133,10 +138,12 @@
 
 					await writeStream.WriteAsync(buffer, 0, bytesRead);
 
-					progressPercent = Decimal.Divide(totalRead, file.Size);
-
+					var process = Decimal.Divide(totalRead, file.Size);
+					progressPercent = (int)(process*100);
 					StateHasChanged();
 				}
+
+				_message.Info("上传完成");
 
 				var downloadURL = Path.Combine(NavigationManager.BaseUri + $"api/download/{trustedFileNameForFileStorage}");
 				appSrc.localPath = path;
@@ -151,7 +158,7 @@
 			}
 			catch (Exception ex)
 			{
-
+				_message.Error(ex.Message);
 			}
 		}
 

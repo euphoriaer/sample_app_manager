@@ -1,10 +1,8 @@
 ﻿@page "/UserManager"
-@using SampleAppManager.LiteDB;
-@using SampleAppManager.Model;
-@using SampleAppManager.Pages.Dialoge;
+
 @inject NavigationManager NavigationManager
 @inject LiteDbContext ProcessVersionData
-
+@attribute [Authorize]
 <div>
 	<Table TItem="UserItem" DataSource="@userItems"  RowClassName="@(_=>"editable-row")" Bordered>
 		<PropertyColumn Property="c=>c.UserName">
