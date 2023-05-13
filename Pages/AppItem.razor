@@ -1,4 +1,4 @@
-﻿
+﻿@inject IMessageService _message
 @inject IWebHostEnvironment Environment
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
@@ -80,6 +80,7 @@
 </style>
 
 @code {
+
 	[Parameter]
 	public APKItem appSrc { get; set; }
 	private int progressPercent;
@@ -142,6 +143,8 @@
 					StateHasChanged();
 				}
 
+				_message.Info("上传完成");
+
 				var downloadURL = Path.Combine(NavigationManager.BaseUri + $"api/download/{trustedFileNameForFileStorage}");
 				appSrc.localPath = path;
 				appSrc.DownLoadURL = downloadURL;
@@ -155,7 +158,7 @@
 			}
 			catch (Exception ex)
 			{
-
+				_message.Error(ex.Message);
 			}
 		}
 
