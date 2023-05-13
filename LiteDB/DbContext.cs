@@ -43,7 +43,7 @@ namespace SampleAppManager.LiteDB
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<ProcessVersion>();
-					var list = col.FindAll().ToList();
+					var list = col.FindAll().OrderBy(x=>x.CustomerId.CreationTime).ToList();
 					return list;
 				}
 			}
@@ -92,10 +92,14 @@ namespace SampleAppManager.LiteDB
 					var upDateApk = version.GetAPKItems();
 					for (int i = 0; i < upDateApk.Count; i++)
 					{
+						if (upDateApk[i].CustomerId == null)
+						{
+							continue;
+						}
 						apks.Delete(upDateApk[i].CustomerId);
 					}
 
-					bool isOk=col.Delete(version.RouteName);
+					bool isOk=col.Delete(version.CustomerId);
 				}
 			}
 		}

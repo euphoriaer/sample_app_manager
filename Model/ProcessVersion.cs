@@ -7,6 +7,8 @@ namespace SampleAppManager.Data
 	public class ProcessVersion
 	{
 		[BsonId]
+		public ObjectId CustomerId { get; set; }
+
 		public string RouteName { get; set; }
 		public string VersionName { get; set; }
 
