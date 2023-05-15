@@ -23,12 +23,20 @@ Index
 		<GridCol Span="12">
 			<Layout>
 				<span>AppList</span>
-				@for (int i = 0; i < appItems.Count; i++)
-				{
-					<span>ID @appItems[i].CustomerId</span>
-					<span>Name @appItems[i].Name</span>
-					<span>Name @appItems[i].CustomerId.CreationTime</span>
-				}
+				<AntList DataSource="@appItems" ItemLayout="@ListItemLayout.Vertical" Bordered="true" Split="true">
+					<ChildContent Context="item" >
+						<ListItem>
+							<ListItemMeta Description="@item.Description">
+								<AvatarTemplate>
+									<QRCode Value="@item.QRcode" Alt="QRCode image" Style="{width:100;height:100px;}" DrawQuietZones=false PixelsPerModule=8 />
+								</AvatarTemplate>
+								<TitleTemplate>
+									@item.Name
+								</TitleTemplate>
+							</ListItemMeta>
+						</ListItem>
+					</ChildContent>
+				</AntList>
 			</Layout>
 		</GridCol>
 
@@ -36,6 +44,8 @@ Index
 </div>
 
 @code {
+
+	
 	List<APKItem> appItems = new List<APKItem>();
 	protected override void OnInitialized()
 	{
