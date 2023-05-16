@@ -124,6 +124,8 @@
 				if (!Directory.Exists(folder))
 				{
 					Directory.CreateDirectory(folder);
+
+
 				}
 
 				await using FileStream writeStream = new(path, FileMode.Create);
