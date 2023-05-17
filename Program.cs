@@ -6,7 +6,8 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-
+using Microsoft.AspNetCore.Components;
+using SampleAppManager.FTPServer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -35,6 +36,8 @@ builder.Services.AddScoped<LiteDbContext>((x) => {
     return new LiteDbContext(path);
 });
 
+builder.Services.AddTransient<FTPServerProvide>();
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
@@ -53,13 +56,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
-
 app.UseRouting();
-
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
