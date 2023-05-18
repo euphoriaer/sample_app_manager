@@ -1,5 +1,5 @@
 ﻿@page "/"
-
+@inject NavigationManager NavigationManager
 Index
 
 @inject LiteDbContext Data
@@ -9,6 +9,22 @@ Index
 
 		<GridCol Span="12">
 			<Layout>
+
+				<Upload Method="uploadUrl"
+						Action=""
+						Name="files"
+						Drag
+						Multiple
+						OnSingleCompleted="OnSingleCompleted">
+					<p class="ant-upload-drag-icon">
+						<Icon Type="inbox" />
+					</p>
+					<p class="ant-upload-text">Click or drag file to this area to upload</p>
+					<p class="ant-upload-hint">
+						Support for a single or bulk upload. Strictly prohibit from uploading company data or other
+						band files
+					</p>
+				</Upload>
 				<AuthorizeView>
 					<Authorized>
 						<span>You're authorized as @context.User.Identity.Name</span>
@@ -17,14 +33,14 @@ Index
 						<span>You're not authorized</span>
 					</NotAuthorized>
 				</AuthorizeView>
-			</Layout>
-		</GridCol>
+				</Layout>
+				</GridCol>
 
-		<GridCol Span="12">
-			<Layout>
+				<GridCol Span="12">
+				<Layout>
 				<span>AppList</span>
 				<AntList DataSource="@appItems" ItemLayout="@ListItemLayout.Vertical" Bordered="true" Split="true">
-					<ChildContent Context="item" >
+					<ChildContent Context="item">
 						<ListItem>
 							<ListItemMeta Description="@item.Description">
 								<AvatarTemplate>
@@ -37,18 +53,48 @@ Index
 						</ListItem>
 					</ChildContent>
 				</AntList>
-			</Layout>
-		</GridCol>
+				</Layout>
+				</GridCol>
 
-	</GridRow>
-</div>
+				</GridRow>
+			</div>
 
-@code {
+			@code {
 
-	
+	public string uploadUrl;
 	List<APKItem> appItems = new List<APKItem>();
 	protected override void OnInitialized()
 	{
+
+		System.Uri uri = new Uri(NavigationManager.BaseUri, false);
+		var address = uri.Host;
+		uploadUrl = "http://"+address+"/files/";
+
+		var client = new HttpClient();
+		var request = new HttpRequestMessage(HttpMethod.Post, "http://10.0.2.109/files/");
+	
+
+		uploadUrl = request.RequestUri.ToString();
 		appItems = Data.Apps.Get();
+	}
+
+	void OnSingleCompleted(UploadInfo fileinfo)
+	{
+		if (fileinfo.File.State == UploadState.Success)
+		{
+			var result = fileinfo.File.GetResponse<ResponseModel>();
+			fileinfo.File.Url = result.url;
+		}
+	}
+
+	public class ResponseModel
+	{
+		public string name { get; set; }
+
+		public string status { get; set; }
+
+		public string url { get; set; }
+
+		public string thumbUrl { get; set; }
 	}
 }

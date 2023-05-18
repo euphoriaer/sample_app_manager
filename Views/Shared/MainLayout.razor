@@ -10,7 +10,7 @@
 @inject LiteDbContext ProcessVersionData
 @inject ISessionStorageService SessionStorage
 @inject AuthenticationStateProvider AuthStateProvider
-@inject FTPServerProvide AuthS
+@inject FTPServerProvide Ftp
 
 <Layout Style="min-height: 100vh; ">
 	<Sider Collapsible Collapsed=@collapsed OnCollapse=@onCollapse>
@@ -107,7 +107,7 @@
 	protected override void OnInitialized()
 	{
 		ProcessVersionStatus.processVersion = ProcessVersionData.ProcessVersions.GetProcessVersion();
-		AuthS.UrlTest();
+		Ftp.Init();
 	}
 
 	protected override async Task OnInitializedAsync()

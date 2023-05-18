@@ -147,7 +147,12 @@
 
 				_message.Info("上传完成");
 
-				var downloadURL = Path.Combine(NavigationManager.BaseUri + $"api/download/{trustedFileNameForFileStorage}");
+
+				string downloadURL;
+				System.Uri uri = new Uri(NavigationManager.BaseUri, false);
+				var address = uri.Host;
+				downloadURL = "http://" + address + $"/files/{trustedFileNameForFileStorage}";
+
 				appSrc.localPath = path;
 				appSrc.DownLoadURL = downloadURL;
 				appSrc.QRcode = downloadURL;

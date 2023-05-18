@@ -17,39 +17,45 @@ namespace SampleAppManager.FTPServer
 			{
 				var folder = Path.Combine(env.WebRootPath, "files");
 				var serverPath = Path.Combine(env.WebRootPath, "ftp_server", "hfs.exe");
-				FTPServer = new FTPServer(url, folder, serverPath, serverConfig);
+				FTPServer = new FTPServer(folder, serverPath, serverConfig);
 			}
 		}
 
-		public void UrlTest()
+		public void Init()
 		{
-			Debug.WriteLine(FTPServer.url);
+
 		}
+
 	}
 
 
 
 	public class FTPServer
 	{
-		public string url;
+
 
 		public Process serverProcess;
 
-		public FTPServer(string url, string savePath, string serverPath, string configPath)
+		public FTPServer(string savePath, string serverPath, string configPath)
 		{
 
 			if (File.Exists(configPath))
 			{
 				File.Delete(configPath);
 			}
-			string cfg = $"vfs:\r\n  children:\r\n    - source: {savePath}\n      can_see: true\r\n      can_list: true\r\n      can_upload: true\r\n      can_delete: true";
+			string cfg = $"vfs:\r\n  children:\r\n    " +
+				$"- source: {savePath}\n      " +
+				$"can_see: true\r\n      " +
+				$"can_list: true\r\n      " +
+				$"can_upload: true\r\n      " +
+				$"can_delete: true";
 			using(File.Create(configPath));
 			File.WriteAllText(configPath, cfg);
 
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
 
-			serverProcess = Process.Start(serverPath, "help");
-			//var configPath = Path.Combine(Path.GetDirectoryName(serverPath), "config.yaml");
+			serverProcess = Process.Start(serverPath);
+
 			serverProcess.Exited += new EventHandler(ServerExit);
 		}
 
