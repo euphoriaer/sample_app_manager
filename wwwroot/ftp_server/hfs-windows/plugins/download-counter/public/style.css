@@ -1,2 +1,0 @@
-.download-counter::before { content: "↓" }
-.download-counter::after { content: var(--separator) }

@@ -1,8 +1,0 @@
-vfs:
-  children:
-    - source: C:\ASP\app_manager\sample_app_manager\wwwroot\files
-      can_see: true
-      can_list: true
-      can_upload: true
-      can_delete: true
-force_lang: zh

@@ -16,7 +16,7 @@ namespace SampleAppManager.FTPServer
 			if (FTPServer == null)
 			{
 				var folder = Path.Combine(env.WebRootPath, "files");
-				var serverPath = Path.Combine(env.WebRootPath, "ftp_server", "hfs-windows", "hfs.exe");
+				var serverPath = Path.Combine(env.WebRootPath, "ftp_server", "hfs.exe");
 				FTPServer = new FTPServer(url, folder, serverPath, serverConfig);
 			}
 		}
