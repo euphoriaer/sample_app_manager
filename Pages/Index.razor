@@ -1,14 +1,15 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
+@using BootstrapBlazor.Components
+@inject IWebHostEnvironment env
 Index
 
 @inject LiteDbContext Data
 
 <div>
 	<GridRow>
-
 		<GridCol Span="12">
-			<Layout>
+			<AntDesign.Layout>
 				@*目前不支持中文，不支持大文件（250MB）*@
 				<Upload Action="/api/file/upload"
 						BeforeUpload="(file)=>{return frontendUpload(file);}"
@@ -28,6 +29,14 @@ Index
 						band files
 					</p>
 				</Upload>
+
+				<AvatarUpload TValue="string" 
+					Accept="*/*" 
+					ShowProgress="true" 
+					OnChange="@OnAvatarUpload" 
+					OnDelete="@(fileName => Task.FromResult(true))">
+				</AvatarUpload>
+
 				<AuthorizeView>
 					<Authorized>
 						<span>You're authorized as @context.User.Identity.Name</span>
@@ -36,11 +45,11 @@ Index
 						<span>You're not authorized</span>
 					</NotAuthorized>
 				</AuthorizeView>
-				</Layout>
+				</AntDesign.Layout>
 				</GridCol>
 
 				<GridCol Span="12">
-				<Layout>
+				<AntDesign.Layout>
 				<span>AppList</span>
 				<AntList DataSource="@appItems" ItemLayout="@ListItemLayout.Vertical" Bordered="true" Split="true">
 					<ChildContent Context="item">
@@ -56,7 +65,7 @@ Index
 						</ListItem>
 					</ChildContent>
 				</AntList>
-				</Layout>
+				</AntDesign.Layout>
 				</GridCol>
 
 				</GridRow>
@@ -70,7 +79,20 @@ Index
 	{
 		appItems = Data.Apps.Get();
 	}
+	public async Task OnAvatarUpload(UploadFile file)
+	{
+		var originName = file.OriginFileName;
+		var name = file.FileName;
+		var browserFile= file.File;
+		//var originName = file.;
+		var trustedFileNameForFileStorage = Path.GetRandomFileName() + originName;
+		var path = Path.Combine(env.WebRootPath, "files",
+				trustedFileNameForFileStorage);
+		await file.SaveToFileAsync(path);
+	
+		return;
 
+	}
 	bool frontendUpload(UploadFileItem item)
 	{
 		var x= item.ObjectURL;

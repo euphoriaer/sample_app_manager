@@ -8,6 +8,7 @@ using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using SampleAppManager.FTPServer;
+using Microsoft.AspNetCore.SignalR;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
@@ -15,6 +16,9 @@ builder.Services.AddHttpClient();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
 builder.Services.AddBlazoredSessionStorage();
+
+builder.Services.AddBootstrapBlazor();
+builder.Services.Configure<HubOptions>(option => option.MaximumReceiveMessageSize = long.MaxValue);
 
 builder.Services
     .AddBlazorise(options =>
