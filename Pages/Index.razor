@@ -9,10 +9,13 @@ Index
 
 		<GridCol Span="12">
 			<Layout>
-
-				<Upload Method="uploadUrl"
-						Action=""
+				@*目前不支持中文，不支持大文件（250MB）*@
+				<Upload Action="/api/file/upload"
+						BeforeUpload="(file)=>{return frontendUpload(file);}"
 						Name="files"
+						Data="new Dictionary<string, object>() { }"
+							OnChange="OnUploadChange"
+						Accept="image/png,image/jpeg"
 						Drag
 						Multiple
 						OnSingleCompleted="OnSingleCompleted">
@@ -65,25 +68,35 @@ Index
 	List<APKItem> appItems = new List<APKItem>();
 	protected override void OnInitialized()
 	{
-
-		System.Uri uri = new Uri(NavigationManager.BaseUri, false);
-		var address = uri.Host;
-		uploadUrl = "http://"+address+"/files/";
-
-		var client = new HttpClient();
-		var request = new HttpRequestMessage(HttpMethod.Post, "http://10.0.2.109/files/");
-	
-
-		uploadUrl = request.RequestUri.ToString();
 		appItems = Data.Apps.Get();
+	}
+
+	bool frontendUpload(UploadFileItem item)
+	{
+		var x= item.ObjectURL;
+		var x1= item.Percent;
+		var x2= item.Response;
+		var x3= item.FileName;
+		return true;
+	}
+
+	void  OnUploadChange(UploadInfo file)
+	{
+		var item = file.File;
+		var x= item.ObjectURL;
+		var x1= item.Percent;
+		var x2= item.Response;
+		var x3= item.FileName;
+	
 	}
 
 	void OnSingleCompleted(UploadInfo fileinfo)
 	{
+		 
 		if (fileinfo.File.State == UploadState.Success)
 		{
-			var result = fileinfo.File.GetResponse<ResponseModel>();
-			fileinfo.File.Url = result.url;
+			//var result = fileinfo.File.GetResponse<ResponseModel>();
+			//fileinfo.File.Url = result.url;
 		}
 	}
 
