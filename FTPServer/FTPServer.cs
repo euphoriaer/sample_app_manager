@@ -43,13 +43,17 @@ namespace SampleAppManager.FTPServer
 			{
 				File.Delete(configPath);
 			}
-			string cfg = $"vfs:\r\n  children:\r\n    " +
-				$"- source: {savePath}\n      " +
-				$"can_see: true\r\n      " +
-				$"can_list: true\r\n      " +
-				$"can_upload: true\r\n      " +
-				$"can_delete: true";
-			using(File.Create(configPath));
+			string cfg = "vfs:\r\n  " +
+				"children:\r\n    " +
+				"- source: C:\\ASP\\app_manager\\sample_app_manager\\wwwroot\\files\r\n      " +
+				"can_see: true\r\n      " +
+				"can_list: true\r\n      " +
+				"can_upload: true\r\n      " +
+				"can_delete: true\r\n" +
+				"https_port: 443\r\n" +
+				"cert: self.cert\r\n" +
+				"private_key: self.key";
+			using (File.Create(configPath));
 			File.WriteAllText(configPath, cfg);
 
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
