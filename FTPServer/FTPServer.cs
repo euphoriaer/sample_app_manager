@@ -8,10 +8,12 @@ namespace SampleAppManager.FTPServer
 		protected NavigationManager NavigationManager { get; }
 		private string url;
 		private static FTPServer FTPServer;
+		public static string wwwroot;
 		public FTPServerProvide(NavigationManager navigationManager, IWebHostEnvironment env)
 		{
 			NavigationManager = navigationManager;
 			url = NavigationManager.BaseUri;
+			wwwroot = env.WebRootPath;
 			var serverConfig = Path.Combine(env.ContentRootPath, "config.yaml");
 			if (FTPServer == null)
 			{
@@ -45,14 +47,12 @@ namespace SampleAppManager.FTPServer
 			}
 			string cfg = "vfs:\r\n  " +
 				"children:\r\n    " +
-				"- source: C:\\ASP\\app_manager\\sample_app_manager\\wwwroot\\files\r\n      " +
+				$"- source: {FTPServerProvide.wwwroot}\\files\r\n      " +
 				"can_see: true\r\n      " +
 				"can_list: true\r\n      " +
 				"can_upload: true\r\n      " +
-				"can_delete: true\r\n" +
-				"https_port: 443\r\n" +
-				"cert: wwwroot\\ftp_server\\self.cert\r\n" +
-				"private_key: wwwroot\\ftp_server\\self.key";
+				"can_delete: true\r\n";
+
 			using (File.Create(configPath));
 			File.WriteAllText(configPath, cfg);
 
