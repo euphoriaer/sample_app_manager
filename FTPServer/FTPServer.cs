@@ -51,8 +51,8 @@ namespace SampleAppManager.FTPServer
 				"can_upload: true\r\n      " +
 				"can_delete: true\r\n" +
 				"https_port: 443\r\n" +
-				"cert: self.cert\r\n" +
-				"private_key: self.key";
+				"cert: wwwroot\\ftp_server\\self.cert\r\n" +
+				"private_key: wwwroot\\ftp_server\\self.key";
 			using (File.Create(configPath));
 			File.WriteAllText(configPath, cfg);
 

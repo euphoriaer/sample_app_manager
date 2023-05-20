@@ -32,4 +32,9 @@
     <Folder Include="wwwroot\uploads\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="wwwroot\ftp_server\self.cert" />
+    <None Include="wwwroot\ftp_server\self.key" />
+  </ItemGroup>
+
 </Project>
