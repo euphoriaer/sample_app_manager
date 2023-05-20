@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @using BootstrapBlazor.Components
+
 @inject IWebHostEnvironment env
 Index
 
@@ -15,7 +16,7 @@ Index
 						BeforeUpload="(file)=>{return frontendUpload(file);}"
 						Name="files"
 						Data="new Dictionary<string, object>() { }"
-							OnChange="OnUploadChange"
+						OnChange="OnUploadChange"
 						Accept="image/png,image/jpeg"
 						Drag
 						Multiple
@@ -30,11 +31,11 @@ Index
 					</p>
 				</Upload>
 
-				<AvatarUpload TValue="string" 
-					Accept="*/*" 
-					ShowProgress="true" 
-					OnChange="@OnAvatarUpload" 
-					OnDelete="@(fileName => Task.FromResult(true))">
+				<AvatarUpload TValue="string"
+							  Accept="*/*"
+							  ShowProgress="true"
+							  OnChange="@OnAvatarUpload"
+							  OnDelete="@(fileName => Task.FromResult(true))">
 				</AvatarUpload>
 
 				<AuthorizeView>
@@ -54,14 +55,39 @@ Index
 				<AntList DataSource="@appItems" ItemLayout="@ListItemLayout.Vertical" Bordered="true" Split="true">
 					<ChildContent Context="item">
 						<ListItem>
-							<ListItemMeta Description="@item.Description">
-								<AvatarTemplate>
-									<QRCode Value="@item.QRcode" Alt="QRCode image" Style="{width:100;height:100px;}" DrawQuietZones=false PixelsPerModule=8 />
-								</AvatarTemplate>
-								<TitleTemplate>
-									@item.Name
-								</TitleTemplate>
-							</ListItemMeta>
+						<Space Direction="DirectionVHType.Horizontal">
+
+								<SpaceItem>
+									<QRCode Content="@item.QRcode"></QRCode>
+								</SpaceItem>
+
+								<SpaceItem>
+
+									<Space Direction="DirectionVHType.Vertical">
+										<SpaceItem>
+											@item.Name
+										</SpaceItem>
+										<SpaceItem>
+											@item.Description
+										</SpaceItem>
+										<SpaceItem>
+											@item.CustomerId.CreationTime
+										</SpaceItem>
+									</Space>
+								</SpaceItem>
+							</Space>
+									<Space Direction="DirectionVHType.Vertical">
+										<SpaceItem>
+											<AntDesign.Button Type="@AntDesign.ButtonType.Primary">下载</AntDesign.Button>
+										</SpaceItem>
+										<SpaceItem>
+											<AntDesign.Button Type="@AntDesign.ButtonType.Primary">复制</AntDesign.Button>
+										</SpaceItem>
+										<SpaceItem>
+											<AntDesign.Button Type="@AntDesign.ButtonType.Primary">删除</AntDesign.Button>
+										</SpaceItem>
+									</Space>
+						
 						</ListItem>
 					</ChildContent>
 				</AntList>
@@ -71,50 +97,50 @@ Index
 				</GridRow>
 			</div>
 
-			@code {
+@code {
 
 	public string uploadUrl;
 	List<APKItem> appItems = new List<APKItem>();
 	protected override void OnInitialized()
 	{
-		appItems = Data.Apps.Get();
+		appItems = Data.Apps.Get().OrderByDescending(x => x.CustomerId.CreationTime).ToList();
 	}
 	public async Task OnAvatarUpload(UploadFile file)
 	{
 		var originName = file.OriginFileName;
 		var name = file.FileName;
-		var browserFile= file.File;
+		var browserFile = file.File;
 		//var originName = file.;
 		var trustedFileNameForFileStorage = Path.GetRandomFileName() + originName;
 		var path = Path.Combine(env.WebRootPath, "files",
 				trustedFileNameForFileStorage);
 		await file.SaveToFileAsync(path);
-	
+
 		return;
 
 	}
 	bool frontendUpload(UploadFileItem item)
 	{
-		var x= item.ObjectURL;
-		var x1= item.Percent;
-		var x2= item.Response;
-		var x3= item.FileName;
+		var x = item.ObjectURL;
+		var x1 = item.Percent;
+		var x2 = item.Response;
+		var x3 = item.FileName;
 		return true;
 	}
 
-	void  OnUploadChange(UploadInfo file)
+	void OnUploadChange(UploadInfo file)
 	{
 		var item = file.File;
-		var x= item.ObjectURL;
-		var x1= item.Percent;
-		var x2= item.Response;
-		var x3= item.FileName;
-	
+		var x = item.ObjectURL;
+		var x1 = item.Percent;
+		var x2 = item.Response;
+		var x3 = item.FileName;
+
 	}
 
 	void OnSingleCompleted(UploadInfo fileinfo)
 	{
-		 
+
 		if (fileinfo.File.State == UploadState.Success)
 		{
 			//var result = fileinfo.File.GetResponse<ResponseModel>();

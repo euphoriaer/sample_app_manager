@@ -3,6 +3,8 @@
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClients
+@using BootstrapBlazor.Components
+
 <Space Direction="DirectionVHType.Vertical">
 	<SpaceItem>
 		<GridRow>
@@ -15,7 +17,7 @@
 		<GridRow>
 			@if (!string.IsNullOrEmpty(appSrc.QRcode))
 			{
-				<QRCode Value="@appSrc.QRcode" Alt="QRCode image" Style="{width:100;height:100px;}" DrawQuietZones=false PixelsPerModule=8 />
+				<QRCode Content="@appSrc.QRcode" Width="200"></QRCode>
 			}
 			else
 			{
@@ -29,9 +31,8 @@
 		@if (isLoading)
 		{
 			<div style="width: 200px;">
-				<Progress Percent=progressPercent Size="@ProgressSize.Small" />
+				<AntDesign.Progress Percent=progressPercent Size="@ProgressSize.Small" />
 			</div>
-			//<p>Progress: @string.Format("{0:P0}", progressPercent)</p>
 		}
 		@if (user.IsInRole("Administrator")
 				&& string.IsNullOrEmpty(appSrc.QRcode))
@@ -52,18 +53,18 @@
 	<SpaceItem>
 		<GridRow>
 
-			<Button Type="@ButtonType.Primary" OnClick="DownloadFileFromURL">下载</Button>
+			<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="DownloadFileFromURL">下载</AntDesign.Button>
 
 			<GridCol Span="1" />
 
-			<Button Type="@ButtonType.Primary" OnClick="Copy">复制</Button>
+			<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Copy">复制</AntDesign.Button>
 
 			<GridCol Span="1" />
 
 			@if (user.IsInRole("Administrator")
 					&& !string.IsNullOrEmpty(appSrc.QRcode))
 			{
-				<Button Type="@ButtonType.Primary" OnClick="Delete">删除</Button>
+				<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Delete">删除</AntDesign.Button>
 			}
 			<GridCol Span="1" />
 		</GridRow>
@@ -151,7 +152,7 @@
 				string downloadURL;
 				System.Uri uri = new Uri(NavigationManager.BaseUri, false);
 				var address = uri.Host;
-				downloadURL = "http://" + address + $"/files/{trustedFileNameForFileStorage}";
+				downloadURL = "https://" + address + $"/files/{trustedFileNameForFileStorage}";
 
 				appSrc.localPath = path;
 				appSrc.DownLoadURL = downloadURL;

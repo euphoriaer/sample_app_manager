@@ -18,8 +18,8 @@
     <PackageReference Include="Blazored.SessionStorage" Version="2.3.0" />
     <PackageReference Include="Blazorise.Bootstrap" Version="1.2.2" />
     <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.2.2" />
-    <PackageReference Include="Blazorise.QRCode" Version="1.2.2" />
     <PackageReference Include="BootstrapBlazor" Version="7.6.6" />
+    <PackageReference Include="BootstrapBlazor.BarCode" Version="7.1.5" />
     <PackageReference Include="BootstrapBlazor.FontAwesome" Version="7.4.2" />
     <PackageReference Include="JWT" Version="10.0.2" />
     <PackageReference Include="LiteDB" Version="5.0.16" />
