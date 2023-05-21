@@ -11,13 +11,11 @@ Index
 	<GridRow>
 		<GridCol Span="12">
 			<AntDesign.Layout>
-				@*目前不支持中文，不支持大文件（250MB）*@
 				<Upload Action="/api/file/upload"
 						BeforeUpload="(file)=>{return frontendUpload(file);}"
 						Name="files"
 						Data="new Dictionary<string, object>() { }"
 						OnChange="OnUploadChange"
-						Accept="image/png,image/jpeg"
 						Drag
 						Multiple
 						OnSingleCompleted="OnSingleCompleted">

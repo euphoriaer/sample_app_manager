@@ -50,7 +50,7 @@ namespace SampleAppManager.Controllers
 		}
 	}
 
-
+	[RequestSizeLimit(52428800000)]
 	[ApiController]
 	[Route("/api/file")]
 	public class UploadController : Controller
@@ -63,6 +63,7 @@ namespace SampleAppManager.Controllers
 			this.env = env;
 		}
 
+		[RequestSizeLimit(52428800000)]
 		[HttpPost, Route("upload")]
 		public void UploadFile(IFormCollection formCollection)
 		{
