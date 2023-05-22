@@ -13,6 +13,7 @@ Index
 			<AntDesign.Layout>
 				<AuthorizeView>
 					<Authorized>
+						<Affix OffsetTop=10>
 						<span>You're authorized as @context.User.Identity.Name</span>
 						<Upload Action="/api/file/upload"
 								BeforeUpload="(file)=>{return frontendUpload(file);}"
@@ -28,66 +29,88 @@ Index
 								Support for a single or bulk upload.
 							</p>
 						</Upload>
+					</Affix>
 					</Authorized>
 					<NotAuthorized>
 						<span>You're not authorized</span>
 					</NotAuthorized>
 				</AuthorizeView>
-				</AntDesign.Layout>
-				</GridCol>
-
-				<GridCol Span="12">
-				<AntDesign.Layout>
-				<span>AppList</span>
-				<AntList DataSource="@appItems" ItemLayout="@ListItemLayout.Vertical" Bordered="true" Split="true">
-					<ChildContent Context="item">
-						<ListItem>
-							<Space Direction="DirectionVHType.Horizontal">
-
-								<SpaceItem>
-									<QRCode Content="@item.QRcode"></QRCode>
-								</SpaceItem>
-
-								<SpaceItem>
-
-									<Space Direction="DirectionVHType.Vertical">
-										<SpaceItem>
-											@item.Name
-										</SpaceItem>
-										<SpaceItem>
-											@item.Description
-										</SpaceItem>
-										<SpaceItem>
-											@(item.CustomerId.CreationTime.AddHours(8))
-										</SpaceItem>
-									</Space>
-								</SpaceItem>
-							</Space>
-							<Space Direction="DirectionVHType.Vertical">
-								<SpaceItem>
-									<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => DownloadFileFromURL(item))">下载</AntDesign.Button>
-								</SpaceItem>
-								<SpaceItem>
-									<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => Copy(item))">复制</AntDesign.Button>
-								</SpaceItem>
-
-								@if (user.IsInRole("Administrator"))
-								{
-								<SpaceItem>
-										<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => Delete(item))">删除</AntDesign.Button>
-								</SpaceItem>
-								}
-							</Space>
-						</ListItem>
-					</ChildContent>
-				</AntList>
 			</AntDesign.Layout>
 		</GridCol>
 
+		<GridCol Span="12">
+			<AntDesign.Layout>
+				<span>AppList</span>
+				<ListView TItem="APKItem"  Pageable="true" PageItems="9" OnQueryAsync="@OnQueryAsync">
+					<HeaderTemplate>
+						<div>最近的上传</div>
+					</HeaderTemplate>
+					<BodyTemplate>
+						<BootstrapBlazor.Components.Card>
+							<BodyTemplate>
+								<Space Direction="DirectionVHType.Vertical"  Align="center">
+									<SpaceItem>
+										<Space Direction="DirectionVHType.Vertical">
+											<SpaceItem>
+												@context.Name
+											</SpaceItem>
+											<SpaceItem>
+												@context.Description
+											</SpaceItem>
+										</Space>
+									</SpaceItem>
+
+									<SpaceItem>
+								<QRCode Content="@context.QRcode" Width="200"></QRCode>
+									</SpaceItem>
+
+									<SpaceItem>
+										<Space Direction="DirectionVHType.Horizontal">
+											<SpaceItem>
+												<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => DownloadFileFromURL(@context))">下载</AntDesign.Button>
+											</SpaceItem>
+											<SpaceItem>
+												<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => Copy(@context))">复制</AntDesign.Button>
+											</SpaceItem>
+
+											@if (user.IsInRole("Administrator"))
+											{
+												<SpaceItem>
+													<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => Delete(@context))">删除</AntDesign.Button>
+												</SpaceItem>
+											}
+										</Space>
+
+									</SpaceItem>
+
+									<SpaceItem>
+										@(context.CustomerId.CreationTime.AddHours(8))
+									</SpaceItem>
+
+								</Space>
+								
+							</BodyTemplate>
+						</BootstrapBlazor.Components.Card>
+					</BodyTemplate>
+
+				</ListView>
+
+			</AntDesign.Layout>
+		</GridCol>
 	</GridRow>
 </div>
 
 @code {
+
+	private Task<QueryData<APKItem>> OnQueryAsync(QueryPageOptions options)
+	{
+		var items = appItems.Skip((options.PageIndex - 1) * options.PageItems).Take(options.PageItems);
+		return Task.FromResult(new QueryData<APKItem>()
+			{
+				Items = items,
+				TotalCount = appItems.Count()
+			});
+	}
 
 	public async void DownloadFileFromURL(APKItem appSrc)
 	{
