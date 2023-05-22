@@ -14,27 +14,17 @@ Index
 				<Upload Action="/api/file/upload"
 						BeforeUpload="(file)=>{return frontendUpload(file);}"
 						Name="files"
-						Data="new Dictionary<string, object>() { }"
 						OnChange="OnUploadChange"
 						Drag
-						Multiple
 						OnSingleCompleted="OnSingleCompleted">
 					<p class="ant-upload-drag-icon">
 						<Icon Type="inbox" />
 					</p>
 					<p class="ant-upload-text">Click or drag file to this area to upload</p>
 					<p class="ant-upload-hint">
-						Support for a single or bulk upload. Strictly prohibit from uploading company data or other
-						band files
+						Support for a single or bulk upload.
 					</p>
 				</Upload>
-
-				<AvatarUpload TValue="string"
-							  Accept="*/*"
-							  ShowProgress="true"
-							  OnChange="@OnAvatarUpload"
-							  OnDelete="@(fileName => Task.FromResult(true))">
-				</AvatarUpload>
 
 				<AuthorizeView>
 					<Authorized>
@@ -53,7 +43,7 @@ Index
 				<AntList DataSource="@appItems" ItemLayout="@ListItemLayout.Vertical" Bordered="true" Split="true">
 					<ChildContent Context="item">
 						<ListItem>
-						<Space Direction="DirectionVHType.Horizontal">
+							<Space Direction="DirectionVHType.Horizontal">
 
 								<SpaceItem>
 									<QRCode Content="@item.QRcode"></QRCode>
@@ -69,28 +59,28 @@ Index
 											@item.Description
 										</SpaceItem>
 										<SpaceItem>
-											@item.CustomerId.CreationTime
+											@(item.CustomerId.CreationTime.AddHours(8))
 										</SpaceItem>
 									</Space>
 								</SpaceItem>
 							</Space>
-									<Space Direction="DirectionVHType.Vertical">
-										<SpaceItem>
-											<AntDesign.Button Type="@AntDesign.ButtonType.Primary">下载</AntDesign.Button>
-										</SpaceItem>
-										<SpaceItem>
-											<AntDesign.Button Type="@AntDesign.ButtonType.Primary">复制</AntDesign.Button>
-										</SpaceItem>
-										<SpaceItem>
-											<AntDesign.Button Type="@AntDesign.ButtonType.Primary">删除</AntDesign.Button>
-										</SpaceItem>
-									</Space>
-						
+							<Space Direction="DirectionVHType.Vertical">
+								<SpaceItem>
+									<AntDesign.Button Type="@AntDesign.ButtonType.Primary">下载</AntDesign.Button>
+								</SpaceItem>
+								<SpaceItem>
+									<AntDesign.Button Type="@AntDesign.ButtonType.Primary">复制</AntDesign.Button>
+								</SpaceItem>
+								<SpaceItem>
+									<AntDesign.Button Type="@AntDesign.ButtonType.Primary">删除</AntDesign.Button>
+								</SpaceItem>
+							</Space>
+
 						</ListItem>
 					</ChildContent>
 				</AntList>
-				</AntDesign.Layout>
-			</GridCol>
+			</AntDesign.Layout>
+		</GridCol>
 
 	</GridRow>
 </div>
@@ -101,38 +91,20 @@ Index
 	List<APKItem> appItems = new List<APKItem>();
 	protected override void OnInitialized()
 	{
-		appItems = Data.Apps.Get().OrderByDescending(x => x.CustomerId.CreationTime).ToList();
+		appItems = Data.Apps.Get()
+		.Where(x => !string.IsNullOrEmpty(x.QRcode))
+		.OrderByDescending(x => x.CustomerId.CreationTime).ToList();
 	}
-	public async Task OnAvatarUpload(UploadFile file)
-	{
-		var originName = file.OriginFileName;
-		var name = file.FileName;
-		var browserFile = file.File;
-		//var originName = file.;
-		var trustedFileNameForFileStorage = Path.GetRandomFileName() + originName;
-		var path = Path.Combine(env.WebRootPath, "files",
-				trustedFileNameForFileStorage);
-		await file.SaveToFileAsync(path);
 
-		return;
-
-	}
 	bool frontendUpload(UploadFileItem item)
 	{
-		var x = item.ObjectURL;
-		var x1 = item.Percent;
-		var x2 = item.Response;
-		var x3 = item.FileName;
+		//TODO 对上传文件做限制
 		return true;
 	}
 
 	void OnUploadChange(UploadInfo file)
 	{
-		var item = file.File;
-		var x = item.ObjectURL;
-		var x1 = item.Percent;
-		var x2 = item.Response;
-		var x3 = item.FileName;
+		var x = file.File.Percent;
 
 	}
 
@@ -141,8 +113,9 @@ Index
 
 		if (fileinfo.File.State == UploadState.Success)
 		{
-			//var result = fileinfo.File.GetResponse<ResponseModel>();
-			//fileinfo.File.Url = result.url;
+			appItems = Data.Apps.Get()
+			.Where(x => !string.IsNullOrEmpty(x.QRcode))
+			.OrderByDescending(x => x.CustomerId.CreationTime).ToList();
 		}
 	}
 

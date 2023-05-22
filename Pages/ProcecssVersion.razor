@@ -179,6 +179,8 @@
 		var pip = ProcessVersionStatus.curSelect;
 		//新的
 		var task = ProcessVersionData.ProcessVersions.Update(pip);
+
+		StateHasChanged();
 	}
 
 	public async void OnCancel()

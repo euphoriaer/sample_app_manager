@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Mvc;
-using RestSharp;
-using System.Diagnostics;
+﻿using Microsoft.AspNetCore.Mvc;
+using SampleAppManager.Data;
+using SampleAppManager.LiteDB;
+
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace SampleAppManager.Controllers
@@ -11,7 +11,6 @@ namespace SampleAppManager.Controllers
 	public class DownloadController : Controller
 	{
 		private readonly IWebHostEnvironment env;
-
 
 		public DownloadController(IWebHostEnvironment env)
 		{
@@ -50,59 +49,47 @@ namespace SampleAppManager.Controllers
 		}
 	}
 
-	[RequestSizeLimit(52428800000)]
 	[ApiController]
 	[Route("/api/file")]
 	public class UploadController : Controller
 	{
 		private IWebHostEnvironment env;
-		protected NavigationManager NavigationManager;
-		public UploadController(NavigationManager navigationManager, IWebHostEnvironment env)
+
+		private LiteDbContext liteDbContext;
+		public UploadController(IWebHostEnvironment env, LiteDbContext context)
 		{
-			NavigationManager=navigationManager;
+			liteDbContext=context;
 			this.env = env;
 		}
 
 		[RequestSizeLimit(52428800000)]
 		[HttpPost, Route("upload")]
-		public void UploadFile(IFormCollection formCollection)
+		public  void UploadFile(IFormCollection formCollection)
 		{
 
-			foreach (var item in formCollection.Files)
+			foreach (var formFile in formCollection.Files)
 			{
+				var x = formFile.Name;
+				var originalName = formFile.FileName;
 				
-				Debug.WriteLine(item.Name);
-				Debug.WriteLine(item.FileName);
-				//https://learn.microsoft.com/en-us/aspnet/core/mvc/models/file-uploads?view=aspnetcore-7.0
-				//System.Uri uri = new Uri(NavigationManager.BaseUri, false);
-				//var address = uri.Host;
-				//var uploadUrl = "http://" + address + "/files/";
 
-				//var client = new HttpClient();
-				//var request = new HttpRequestMessage(HttpMethod.Post, "http://10.0.2.109/files/");
-				//var content = new MultipartFormDataContent();
+				var storageFileName = Path.GetRandomFileName() + formFile.FileName;
+				var filePath = Path.Combine(env.WebRootPath,"files", storageFileName);
 
-				//FileStream fi=new FileStream("D:/AndroidPlayer.zip",FileMode.Open);
-
-				////var stream = item.OpenReadStream().CopyToAsync(memoryStream,(int)item.OpenReadStream().Length);
-
-				//content.Add(new StreamContent(item.OpenReadStream()));
-				//request.Content = content;
-				//var response = await client.SendAsync(request);
-				//response.EnsureSuccessStatusCode();
-				//Console.WriteLine(await response.Content.ReadAsStringAsync());
-
-				var options = new RestClientOptions("http://10.0.2.109")
+				using (var stream = System.IO.File.Create(filePath))
 				{
-					MaxTimeout = -1,
-				};
-				var client = new RestClient(options);
-				var request = new RestRequest("/files/", Method.Post);
-				request.AlwaysMultipartFormData = true;
-				request.AddFile("", () => { return item.OpenReadStream(); },item.FileName);
-				RestResponse response = client.Execute(request);
-				Console.WriteLine(response.IsSuccessful);
-				Debug.WriteLine(response.IsSuccessful);
+					formFile.CopyTo(stream);
+				}
+				APKItem item = new APKItem();
+
+				var address = HttpContext.Request.Host.Host;
+				var downloadURL = "http://" + address + $"/files/{storageFileName}";
+				item.localPath = filePath;
+				item.DownLoadURL = downloadURL;
+				item.QRcode = downloadURL;
+				item.Name = originalName;
+
+				liteDbContext.Apps.Add(item);
 			}
 
 		}

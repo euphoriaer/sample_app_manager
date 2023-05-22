@@ -21,10 +21,11 @@ builder.Services.AddBlazoredSessionStorage();
 builder.Services.AddBootstrapBlazor();
 builder.Services.Configure<HubOptions>(option => option.MaximumReceiveMessageSize = long.MaxValue);
 
+builder.Services.Configure<FileStreamOptions>(option => option.BufferSize = int.MaxValue);
 
 builder.Services.Configure<FormOptions>(options =>
 {
-	// Set the limit to 256 MB
+
 	options.MultipartBodyLengthLimit = long.MaxValue;
 });
 
