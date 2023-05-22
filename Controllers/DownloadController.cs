@@ -75,6 +75,12 @@ namespace SampleAppManager.Controllers
 
 				var storageFileName = Path.GetRandomFileName() + formFile.FileName;
 				var filePath = Path.Combine(env.WebRootPath,"files", storageFileName);
+				var folder = Path.Combine(env.WebRootPath, "files");
+				if (!Directory.Exists(folder))
+				{
+					Directory.CreateDirectory(folder);
+
+				}
 
 				using (var stream = System.IO.File.Create(filePath))
 				{

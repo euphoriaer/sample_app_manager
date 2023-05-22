@@ -20,7 +20,7 @@ Index
 								Name="files"
 								OnChange="OnUploadChange"
 								Drag=true
-								OnCompleted="OnSingleCompleted">
+								OnCompleted="OnCompleted">
 							<p class="ant-upload-drag-icon">
 								<Icon Type="inbox" />
 							</p>
@@ -86,15 +86,11 @@ Index
 									<SpaceItem>
 										@(context.CustomerId.CreationTime.AddHours(8))
 									</SpaceItem>
-
 								</Space>
-								
 							</BodyTemplate>
 						</BootstrapBlazor.Components.Card>
 					</BodyTemplate>
-
 				</ListView>
-
 			</AntDesign.Layout>
 		</GridCol>
 	</GridRow>
@@ -136,8 +132,7 @@ Index
 		{
 			string fileURL = appSrc.DownLoadURL;
 			await JS.InvokeVoidAsync("setClipboard", fileURL);
-			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
-			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
+			
 		}
 		catch (Exception)
 		{
@@ -193,7 +188,7 @@ Index
 
 	}
 
-	void OnSingleCompleted(UploadInfo fileinfo)
+	void OnCompleted(UploadInfo fileinfo)
 	{
 
 		if (fileinfo.File.State == UploadState.Success)
@@ -202,5 +197,6 @@ Index
 			.Where(x => !string.IsNullOrEmpty(x.QRcode))
 			.OrderByDescending(x => x.CustomerId.CreationTime).ToList();
 		}
+		StateHasChanged();
 	}
 }
