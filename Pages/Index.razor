@@ -1,7 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @using BootstrapBlazor.Components
-
+@inject IJSRuntime JS
 @inject IWebHostEnvironment env
 Index
 
@@ -11,24 +11,23 @@ Index
 	<GridRow>
 		<GridCol Span="12">
 			<AntDesign.Layout>
-				<Upload Action="/api/file/upload"
-						BeforeUpload="(file)=>{return frontendUpload(file);}"
-						Name="files"
-						OnChange="OnUploadChange"
-						Drag
-						OnSingleCompleted="OnSingleCompleted">
-					<p class="ant-upload-drag-icon">
-						<Icon Type="inbox" />
-					</p>
-					<p class="ant-upload-text">Click or drag file to this area to upload</p>
-					<p class="ant-upload-hint">
-						Support for a single or bulk upload.
-					</p>
-				</Upload>
-
 				<AuthorizeView>
 					<Authorized>
 						<span>You're authorized as @context.User.Identity.Name</span>
+						<Upload Action="/api/file/upload"
+								BeforeUpload="(file)=>{return frontendUpload(file);}"
+								Name="files"
+								OnChange="OnUploadChange"
+								Drag=true
+								OnCompleted="OnSingleCompleted">
+							<p class="ant-upload-drag-icon">
+								<Icon Type="inbox" />
+							</p>
+							<p class="ant-upload-text">Click or drag file to this area to upload</p>
+							<p class="ant-upload-hint">
+								Support for a single or bulk upload.
+							</p>
+						</Upload>
 					</Authorized>
 					<NotAuthorized>
 						<span>You're not authorized</span>
@@ -66,16 +65,19 @@ Index
 							</Space>
 							<Space Direction="DirectionVHType.Vertical">
 								<SpaceItem>
-									<AntDesign.Button Type="@AntDesign.ButtonType.Primary">下载</AntDesign.Button>
+									<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => DownloadFileFromURL(item))">下载</AntDesign.Button>
 								</SpaceItem>
 								<SpaceItem>
-									<AntDesign.Button Type="@AntDesign.ButtonType.Primary">复制</AntDesign.Button>
+									<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => Copy(item))">复制</AntDesign.Button>
 								</SpaceItem>
-								<SpaceItem>
-									<AntDesign.Button Type="@AntDesign.ButtonType.Primary">删除</AntDesign.Button>
-								</SpaceItem>
-							</Space>
 
+								@if (user.IsInRole("Administrator"))
+								{
+								<SpaceItem>
+										<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="@(e => Delete(item))">删除</AntDesign.Button>
+								</SpaceItem>
+								}
+							</Space>
 						</ListItem>
 					</ChildContent>
 				</AntList>
@@ -86,6 +88,66 @@ Index
 </div>
 
 @code {
+
+	public async void DownloadFileFromURL(APKItem appSrc)
+	{
+		try
+		{
+
+			var fileName = appSrc.Name;
+			var fileURL = appSrc.DownLoadURL;
+			await JS.InvokeVoidAsync("open", fileURL);
+			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
+		}
+		catch (Exception)
+		{
+
+		}
+
+	}
+
+	public async void Copy(APKItem appSrc)
+	{
+		try
+		{
+			string fileURL = appSrc.DownLoadURL;
+			await JS.InvokeVoidAsync("setClipboard", fileURL);
+			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
+		}
+		catch (Exception)
+		{
+
+		}
+
+	}
+
+	public void Delete(APKItem appSrc)
+	{
+		if (!string.IsNullOrEmpty(appSrc.localPath))
+		{
+			if (File.Exists(appSrc.localPath))
+			{
+				File.Delete(appSrc.localPath);
+				Data.Apps.Delete(appSrc.CustomerId);
+				appItems.Remove(appSrc);
+
+			}
+		}
+	}
+
+	[CascadingParameter]
+	private Task<AuthenticationState>? authenticationState { get; set; }
+
+	private ClaimsPrincipal user
+	{
+		get
+		{
+			var authState = authenticationState;
+			return authState?.Result.User;
+		}
+	}
 
 	public string uploadUrl;
 	List<APKItem> appItems = new List<APKItem>();
@@ -117,16 +179,5 @@ Index
 			.Where(x => !string.IsNullOrEmpty(x.QRcode))
 			.OrderByDescending(x => x.CustomerId.CreationTime).ToList();
 		}
-	}
-
-	public class ResponseModel
-	{
-		public string name { get; set; }
-
-		public string status { get; set; }
-
-		public string url { get; set; }
-
-		public string thumbUrl { get; set; }
 	}
 }

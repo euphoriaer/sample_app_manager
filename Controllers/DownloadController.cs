@@ -66,7 +66,7 @@ namespace SampleAppManager.Controllers
 		[HttpPost, Route("upload")]
 		public  void UploadFile(IFormCollection formCollection)
 		{
-
+			List<APKItem> Apks = new List<APKItem>(formCollection.Count);
 			foreach (var formFile in formCollection.Files)
 			{
 				var x = formFile.Name;
@@ -88,9 +88,10 @@ namespace SampleAppManager.Controllers
 				item.DownLoadURL = downloadURL;
 				item.QRcode = downloadURL;
 				item.Name = originalName;
-
-				liteDbContext.Apps.Add(item);
+				Apks.Add(item);
 			}
+
+			liteDbContext.Apps.Add(Apks.ToArray());
 
 		}
 	}

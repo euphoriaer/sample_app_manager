@@ -169,9 +169,18 @@ namespace SampleAppManager.LiteDB
 		{
 			private string dbPath;
 
+			private LiteDatabase _db;
 			public LiteDatabase GetDB()
 			{
-				return new LiteDatabase(dbPath);
+				if (_db == null)
+				{
+					return new LiteDatabase(dbPath);
+				}
+				else
+				{
+					return _db;
+				}
+				
 			}
 
 			public AppData(string dbPath)
@@ -217,12 +226,12 @@ namespace SampleAppManager.LiteDB
 				}
 			}
 
-			public void Delete(string name)
+			public void Delete(ObjectId objectId)
 			{
 				using (var db = GetDB())
 				{
 					var col = db.GetCollection<APKItem>();
-					col.Delete(name);
+					col.Delete(objectId);
 				}
 			}
 		}
