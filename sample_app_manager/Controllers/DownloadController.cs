@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SampleAppManager.Data;
+using SampleAppManager.FTPServer;
 using SampleAppManager.LiteDB;
 
 using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
@@ -25,7 +26,7 @@ namespace SampleAppManager.Controllers
 			try
 			{
 
-				string wwwPath = env.WebRootPath;
+				string wwwPath = FTPServerProvide.envWebRootPath;
 
 				var path = Path.Combine(wwwPath, "files",
 						$"{fileName}");
@@ -74,8 +75,8 @@ namespace SampleAppManager.Controllers
 				
 
 				var storageFileName = Path.GetRandomFileName() + formFile.FileName;
-				var filePath = Path.Combine(env.WebRootPath,"files", storageFileName);
-				var folder = Path.Combine(env.WebRootPath, "files");
+				var filePath = Path.Combine(FTPServerProvide.envWebRootPath,"files", storageFileName);
+				var folder = Path.Combine(FTPServerProvide.envWebRootPath, "files");
 				if (!Directory.Exists(folder))
 				{
 					Directory.CreateDirectory(folder);

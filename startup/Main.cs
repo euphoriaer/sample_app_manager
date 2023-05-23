@@ -22,19 +22,9 @@ namespace app_manager_startup
 
 		private void StartUp_Click(object sender, EventArgs e)
 		{
-			
-			//if (FTPServer == null)
-			//{
-			//	FTPServer = new FTPServer("Program\\wwwroot\\files", "FTPServer\\hfs.exe", "FTPServer\\config.yaml");
-			//}
-			//else
-			//{
-			//	return;
-			//}
-
 			Process cmd = new Process();
 
-			cmd.StartInfo.FileName = "Program\\SampleAppManager.exe";
+			cmd.StartInfo.FileName = "sample_app_manager.exe";
 			cmd.StartInfo.Arguments = "--urls " + HostTextBox.Text;
 			cmd.Start();
 		}

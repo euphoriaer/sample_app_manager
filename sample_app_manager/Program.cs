@@ -44,8 +44,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>
 builder.Services.AddAuthenticationCore();
 
 builder.Services.AddScoped<LiteDbContext>((x) => {
-    var env= x.GetRequiredService<IWebHostEnvironment>();
-    var path= Path.Combine(env.ContentRootPath,"Data.db");
+    var path= Path.Combine(Environment.CurrentDirectory, "Data.db");
     return new LiteDbContext(path);
 });
 

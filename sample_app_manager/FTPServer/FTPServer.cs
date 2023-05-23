@@ -9,16 +9,21 @@ namespace SampleAppManager.FTPServer
 		private string url;
 		private static FTPServer FTPServer;
 		public static string wwwroot;
-		public FTPServerProvide(NavigationManager navigationManager, IWebHostEnvironment env)
+		public static string envWebRootPath;
+		public static string envContentRootPath;
+		public FTPServerProvide(NavigationManager navigationManager)
 		{
-			NavigationManager = navigationManager;
-			url = NavigationManager.BaseUri;
-			wwwroot = env.WebRootPath;
-			var serverConfig = Path.Combine(env.ContentRootPath, "config.yaml");
 			if (FTPServer == null)
 			{
-				var folder = Path.Combine(env.WebRootPath, "files");
-				var serverPath = Path.Combine(env.WebRootPath, "ftp_server", "hfs.exe");
+				NavigationManager = navigationManager;
+				url = NavigationManager.BaseUri;
+				wwwroot = Path.Combine(Environment.CurrentDirectory, "wwwroot");
+				envWebRootPath = wwwroot;
+				envContentRootPath = Environment.CurrentDirectory;
+				var serverConfig = Path.Combine(envContentRootPath, "config.yaml");
+
+				var folder = Path.Combine(envWebRootPath, "files");
+				var serverPath = Path.Combine(envWebRootPath, "ftp_server", "hfs.exe");
 				FTPServer = new FTPServer(folder, serverPath, serverConfig);
 			}
 		}
@@ -51,12 +56,12 @@ namespace SampleAppManager.FTPServer
 				"can_see: true\r\n      " +
 				"can_list: true\r\n      " +
 				"can_upload: true\r\n      " +
-				"can_delete: true\r\n"+
+				"can_delete: true\r\n" +
 				$"cert: {FTPServerProvide.wwwroot}\\ftp_server\\self.cert\r\n" +
 				$"private_key: {FTPServerProvide.wwwroot}\\ftp_server\\self.key\r\n" +
 				"https_port: 443";
 
-			using (File.Create(configPath));
+			using (File.Create(configPath)) ;
 			File.WriteAllText(configPath, cfg);
 
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
