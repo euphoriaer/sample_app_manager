@@ -5,72 +5,75 @@
 @inject HttpClient HttpClients
 @using BootstrapBlazor.Components
 
-<Space Direction="DirectionVHType.Vertical">
-	<SpaceItem>
-		<GridRow>
-			<Input Placeholder="@appSrc.Name"
-			@bind-Value="@appSrc.Name"
-					  Bordered="false"
-					  OnPressEnter="@(e => ChangeData(appSrc))"
-				   OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
-		</GridRow>
-		<GridRow>
-			@if (!string.IsNullOrEmpty(appSrc.QRcode))
-			{
-				<QRCode Content="@appSrc.QRcode" Width="200"></QRCode>
-			}
-			else
-			{
-				<Image Width="200px" Src="@appSrc.DefaultImage" Preview=false />
+<BootstrapBlazor.Components.Card>
+	<BodyTemplate>
+		<Space Direction="DirectionVHType.Vertical">
+			<SpaceItem>
+				<GridRow>
+					<Input Placeholder="@appSrc.Name"
+						   @bind-Value="@appSrc.Name"
+						   Bordered="false"
+						   OnPressEnter="@(e => ChangeData(appSrc))"
+						   OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
+				</GridRow>
+				<GridRow>
+					@if (!string.IsNullOrEmpty(appSrc.QRcode))
+					{
+						<QRCode Content="@appSrc.QRcode" Width="200"></QRCode>
+					}
+					else
+					{
+						<Image Width="200px" Src="@appSrc.DefaultImage" Preview=false />
 
-			}
+					}
 
-		</GridRow>
-	</SpaceItem>
-	<SpaceItem>
-		@if (isLoading)
-		{
-			<div style="width: 200px;">
-				<AntDesign.Progress Percent=progressPercent Size="@ProgressSize.Small" />
-			</div>
-		}
-		@if (user.IsInRole("Administrator")
-				&& string.IsNullOrEmpty(appSrc.QRcode))
-		{
-			<InputFile OnChange="@LoadFiles" multiple />
-		}
-	</SpaceItem>
+				</GridRow>
+			</SpaceItem>
+			<SpaceItem>
+				@if (isLoading)
+				{
+					<div style="width: 200px;">
+						<AntDesign.Progress Percent=progressPercent Size="@ProgressSize.Small" />
+					</div>
+				}
+				@if (user.IsInRole("Administrator")
+						&& string.IsNullOrEmpty(appSrc.QRcode))
+				{
+					<InputFile OnChange="@LoadFiles" multiple />
+				}
+			</SpaceItem>
 
-	<SpaceItem>
+			<SpaceItem>
 
-		<TextArea Placeholder="安装包描述"
-				  MinRows="1" MaxRows="3" @bind-Value="@appSrc.Description" 
-				  Bordered="false"
-				  OnPressEnter="@(e => ChangeData(appSrc))" 
-				  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
-	</SpaceItem>
+				<TextArea Placeholder="安装包描述"
+						  MinRows="1" MaxRows="3" @bind-Value="@appSrc.Description"
+						  Bordered="false"
+						  OnPressEnter="@(e => ChangeData(appSrc))"
+						  OnBlur="@(e => ChangeData(appSrc))" ReadOnly=@(!user.IsInRole("Administrator")) />
+			</SpaceItem>
 
-	<SpaceItem>
-		<GridRow>
+			<SpaceItem>
+				<GridRow>
 
-			<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="DownloadFileFromURL">下载</AntDesign.Button>
+					<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="DownloadFileFromURL">下载</AntDesign.Button>
 
-			<GridCol Span="1" />
+					<GridCol Span="1" />
 
-			<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Copy">复制</AntDesign.Button>
+					<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Copy">复制</AntDesign.Button>
 
-			<GridCol Span="1" />
+					<GridCol Span="1" />
 
-			@if (user.IsInRole("Administrator")
-					&& !string.IsNullOrEmpty(appSrc.QRcode))
-			{
-				<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Delete">删除</AntDesign.Button>
-			}
-			<GridCol Span="1" />
-		</GridRow>
-	</SpaceItem>
-
-</Space>
+					@if (user.IsInRole("Administrator")
+							&& !string.IsNullOrEmpty(appSrc.QRcode))
+					{
+						<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Delete">删除</AntDesign.Button>
+					}
+					<GridCol Span="1" />
+				</GridRow>
+			</SpaceItem>
+		</Space>
+	</BodyTemplate>
+</BootstrapBlazor.Components.Card>
 
 
 <style>
@@ -96,7 +99,7 @@
 	[CascadingParameter]
 	private Task<AuthenticationState>? authenticationState { get; set; }
 
-	private ClaimsPrincipal user 
+	private ClaimsPrincipal user
 	{
 		get
 		{
@@ -141,7 +144,7 @@
 					await writeStream.WriteAsync(buffer, 0, bytesRead);
 
 					var process = Decimal.Divide(totalRead, file.Size);
-					progressPercent = (int)(process*100);
+					progressPercent = (int)(process * 100);
 					StateHasChanged();
 				}
 
@@ -180,8 +183,8 @@
 
 			var fileName = appSrc.Name;
 			var fileURL = appSrc.DownLoadURL;
-			await JS.InvokeVoidAsync("open",fileURL);
-			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+			//await JS.InvokeVoidAsync("open",fileURL);
+			await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
 		}
 		catch (Exception)
@@ -190,7 +193,7 @@
 		}
 
 	}
-	
+
 	public async void Copy()
 	{
 		try

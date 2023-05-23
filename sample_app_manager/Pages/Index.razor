@@ -115,8 +115,8 @@ Index
 
 			var fileName = appSrc.Name;
 			var fileURL = appSrc.DownLoadURL;
-			await JS.InvokeVoidAsync("open", fileURL);
-			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
+			//await JS.InvokeVoidAsync("open", fileURL);
+			await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
 		}
 		catch (Exception)
