@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <BaseOutputPath>C:\ASP\app_manager\debug</BaseOutputPath>
   </PropertyGroup>
 
 </Project>
