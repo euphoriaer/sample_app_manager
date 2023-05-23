@@ -89,7 +89,7 @@ namespace SampleAppManager.Controllers
 				APKItem item = new APKItem();
 
 				var address = HttpContext.Request.Host.Host;
-				var downloadURL = "http://" + address + $"/files/{storageFileName}";
+				var downloadURL = "https://" + address + $"/files/{storageFileName}";
 				item.localPath = filePath;
 				item.DownLoadURL = downloadURL;
 				item.QRcode = downloadURL;

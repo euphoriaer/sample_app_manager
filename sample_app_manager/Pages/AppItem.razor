@@ -154,7 +154,7 @@
 				string downloadURL;
 				System.Uri uri = new Uri(NavigationManager.BaseUri, false);
 				var address = uri.Host;
-				downloadURL = "http://" + address + $"/files/{trustedFileNameForFileStorage}";
+				downloadURL = "https://" + address + $"/files/{trustedFileNameForFileStorage}";
 
 				appSrc.localPath = path;
 				appSrc.DownLoadURL = downloadURL;
