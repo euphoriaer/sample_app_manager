@@ -20,5 +20,9 @@ namespace SampleAppManager.Data
 		public string localPath { get; set; } = "";
 
 		public string DefaultImage = "img/empty.png";
+
+		public string RouteVersionName { get; set; }
+
+		public string PiplineName { get; set; }
 	}
 }

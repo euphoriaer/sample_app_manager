@@ -1,6 +1,7 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
 @using BootstrapBlazor.Components
+@using LiteDB;
 @inject IJSRuntime JS
 @inject IWebHostEnvironment env
 Index
@@ -132,7 +133,7 @@ Index
 		{
 			string fileURL = appSrc.DownLoadURL;
 			await JS.InvokeVoidAsync("setClipboard", fileURL);
-			
+
 		}
 		catch (Exception)
 		{
@@ -143,18 +144,36 @@ Index
 
 	public void Delete(APKItem appSrc)
 	{
+		DeleteVersionAPK(appSrc.RouteVersionName, appSrc.PiplineName, appSrc.CustomerId);
+		Data.Apps.Delete(appSrc.CustomerId);
+		appItems.Remove(appSrc);
 		if (!string.IsNullOrEmpty(appSrc.localPath))
 		{
 			if (File.Exists(appSrc.localPath))
 			{
 				File.Delete(appSrc.localPath);
-				Data.Apps.Delete(appSrc.CustomerId);
-				appItems.Remove(appSrc);
-
 			}
 		}
 	}
+	public void DeleteVersionAPK(string RouteversionName,string pipLineName,ObjectId appId)
+	{
+		var versions= Data.ProcessVersions.GetProcessVersion(RouteversionName);
+		if (versions.Count==0)
+		{
+			return;
+		}
+		var version = versions.First();
+		var pip = version.ProcessPiplines.Find((e) => e.PiplineName == pipLineName);
+		if (pip==null)
+		{
+			return;
+		}
 
+		pip.ProcessItems.RemoveAll(e => e.Apk.CustomerId == appId);
+
+		Data.ProcessVersions.Update(version);
+
+	}
 	[CascadingParameter]
 	private Task<AuthenticationState>? authenticationState { get; set; }
 

@@ -63,8 +63,7 @@
 
 					<GridCol Span="1" />
 
-					@if (user.IsInRole("Administrator")
-							&& !string.IsNullOrEmpty(appSrc.QRcode))
+					@if (user.IsInRole("Administrator"))
 					{
 						<AntDesign.Button Type="@AntDesign.ButtonType.Primary" OnClick="Delete">删除</AntDesign.Button>
 					}
@@ -95,6 +94,9 @@
 
 	[Parameter]
 	public Action<APKItem> ChangeData { get; set; }
+
+	[Parameter]
+	public Action<APKItem> DeleteData { get; set; }
 
 	[CascadingParameter]
 	private Task<AuthenticationState>? authenticationState { get; set; }
@@ -212,19 +214,16 @@
 
 	public void Delete()
 	{
-		if (!string.IsNullOrEmpty(appSrc.localPath))
+		var filePath = appSrc.localPath;
+		if (DeleteData != null)
 		{
-			if (File.Exists(appSrc.localPath))
+			DeleteData(appSrc);
+		}
+		if (!string.IsNullOrEmpty(filePath))
+		{
+			if (File.Exists(filePath))
 			{
-				File.Delete(appSrc.localPath);
-				appSrc.DownLoadURL = "";
-				appSrc.QRcode = "";
-				appSrc.Name = "";
-				appSrc.Description = "";
-				if (ChangeData != null)
-				{
-					ChangeData(appSrc);
-				}
+				File.Delete(filePath);
 			}
 		}
 	}

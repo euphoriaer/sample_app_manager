@@ -31,10 +31,17 @@
 			<SpaceItem>
 				<AppItem appSrc="item.Apk" ChangeData="(loader)=>
 				{
-				item.Apk=loader;
+
+				item.Apk.localPath=loader.localPath;
+				item.Apk.DownLoadURL=loader.DownLoadURL;
+				item.Apk.QRcode=loader.QRcode;
+
 				var pip = ProcessVersionStatus.curSelect;
 				//新的
 				var task = ProcessVersionData.ProcessVersions.Update(pip);
+				}" DeleteData="(e)=>
+				{
+				DeleteItem(pipline,item);
 				}" />
 			</SpaceItem>
 			@if (!item.IsFinalAPK)
@@ -113,9 +120,27 @@
 		item.IsFinalAPK = false;
 		pip.ProcessItems.Add(new ProcessItem()
 			{
-				IsFinalAPK = true
+				IsFinalAPK = true,
+				Apk = new APKItem()
+				{
+					RouteVersionName = ProcessVersionStatus.curSelect.RouteName,
+					PiplineName = pip.PiplineName
+				}
 			});
 		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+	}
+
+	public void DeleteItem(ProcessPipline pip, ProcessItem item)
+	{
+		pip.ProcessItems.Remove(item);
+		var finalItem = pip.ProcessItems.Last();
+		if (finalItem != null)
+		{
+			finalItem.IsFinalAPK = true;
+		}
+		ProcessVersionData.Apps.Delete(item.Apk.CustomerId);
+		ProcessVersionData.ProcessVersions.Update(ProcessVersionStatus.curSelect);
+		StateHasChanged();
 	}
 
 

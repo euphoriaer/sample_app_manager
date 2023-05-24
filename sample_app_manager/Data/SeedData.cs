@@ -62,6 +62,8 @@ namespace SampleAppManager.Data
 											},
 											 Apk=new APKItem()
 											{
+											RouteVersionName="10",
+											PiplineName = "DemoAssetPipline",
 											Name = "DemoApp",
 											Description="测试App",
 											},
@@ -71,6 +73,8 @@ namespace SampleAppManager.Data
 										   ApkName="DemoApp2",
 										   Apk=new APKItem()
 											{
+											RouteVersionName="10",
+											PiplineName = "DemoAssetPipline",
 											Name = "DemoApp2",
 											Description="测试App2",
 											},
