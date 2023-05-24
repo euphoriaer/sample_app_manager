@@ -8,6 +8,7 @@ namespace app_manager_startup
 	public partial class Main : Form
 	{
 		public static FTPServer FTPServer;
+		private Process app_manager;
 		public Main()
 		{
 			InitializeComponent();
@@ -18,15 +19,25 @@ namespace app_manager_startup
 		{
 			string host = "https://" + GetIP() + ":5000";
 			HostTextBox.Text = host;
+			AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
+
+		}
+
+		private void CurrentDomain_ProcessExit(object? sender, EventArgs e)
+		{
+			if (app_manager != null)
+			{
+				app_manager.WaitForExitAsync();
+			}
 		}
 
 		private void StartUp_Click(object sender, EventArgs e)
 		{
-			Process cmd = new Process();
+			app_manager = new Process();
 
-			cmd.StartInfo.FileName = "sample_app_manager.exe";
-			cmd.StartInfo.Arguments = "--urls " + HostTextBox.Text;
-			cmd.Start();
+			app_manager.StartInfo.FileName = "sample_app_manager.exe";
+			app_manager.StartInfo.Arguments = "--urls " + HostTextBox.Text;
+			app_manager.Start();
 		}
 
 		private string GetIP()

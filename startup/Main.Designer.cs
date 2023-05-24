@@ -28,6 +28,7 @@
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
 			StartUp = new Button();
 			HostTextBox = new TextBox();
 			SuspendLayout();
@@ -56,6 +57,7 @@
 			ClientSize = new Size(379, 170);
 			Controls.Add(HostTextBox);
 			Controls.Add(StartUp);
+			Icon = (Icon)resources.GetObject("$this.Icon");
 			Name = "Main";
 			Text = "AppManager";
 			ResumeLayout(false);
