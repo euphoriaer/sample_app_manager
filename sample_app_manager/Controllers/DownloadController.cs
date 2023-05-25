@@ -7,54 +7,12 @@ using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace SampleAppManager.Controllers
 {
-	[Route("api/download")]
-	[ApiController]
-	public class DownloadController : Controller
-	{
-		private readonly IWebHostEnvironment env;
-
-		public DownloadController(IWebHostEnvironment env)
-		{
-			this.env = env;
-		}
-		/// <summary>
-		/// 通过 HttpClient 获取另外站点的文件流，再输出，个别手机/浏览器，无法下载 需要FTP下载
-		/// </summary>
-		[HttpGet("{fileName}")]
-		public async Task<IActionResult> Get(string fileName)
-		{
-			try
-			{
-
-				string wwwPath = FTPServerProvide.envWebRootPath;
-
-				var path = Path.Combine(wwwPath, "files",
-						$"{fileName}");
-				var filePath = path;
-
-				if (!System.IO.File.Exists(filePath))
-				{
-					//Todo 弹出警告，文件不存在
-					return null;
-				}
-				using (var bytes = System.IO.File.ReadAllBytesAsync(filePath))
-				{
-					return File(bytes.Result, "application/octet-stream", Path.GetFileName(filePath));
-				}
-			}
-			catch (Exception ex)
-			{
-
-			}
-			return null;
-		}
-	}
-
 	[ApiController]
 	[Route("/api/file")]
 	public class UploadController : Controller
 	{
 		private IWebHostEnvironment env;
+		private const int MaxFileSize=int.MaxValue;
 
 		private LiteDbContext liteDbContext;
 		public UploadController(IWebHostEnvironment env, LiteDbContext context)
@@ -63,7 +21,7 @@ namespace SampleAppManager.Controllers
 			this.env = env;
 		}
 
-		[RequestSizeLimit(52428800000)]
+		[RequestSizeLimit(MaxFileSize)]
 		[HttpPost, Route("upload")]
 		public  void UploadFile(IFormCollection formCollection)
 		{
