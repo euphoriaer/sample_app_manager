@@ -18,7 +18,7 @@ namespace SampleAppManager.Controllers
 			this.env = env;
 		}
 		/// <summary>
-		/// 通过 HttpClient 获取另外站点的文件流，再输出
+		/// 通过 HttpClient 获取另外站点的文件流，再输出，个别手机/浏览器，无法下载 需要FTP下载
 		/// </summary>
 		[HttpGet("{fileName}")]
 		public async Task<IActionResult> Get(string fileName)
