@@ -14,7 +14,7 @@ https://github.com/euphoriaer/sample_app_manager/releases
 ## Windows 部署:
 
 
-1.需要安装.Net7.0 https://dotnet.microsoft.com/zh-cn/download/dotnet/7.0
+1.需要安装.Net7.0 [dotnet-sdk-7.0.302-windows-x86](https://dotnet.microsoft.com/zh-cn/download/dotnet/thank-you/sdk-7.0.302-windows-x86-installer)
 
 2.服务器解压缩,启动startup.exe 浏览器输入启动器IP
 
