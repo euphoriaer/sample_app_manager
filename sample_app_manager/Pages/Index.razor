@@ -114,7 +114,7 @@ Index
 		{
 
 			var fileName = appSrc.Name;
-			var fileURL = appSrc.DownLoadURL;
+			var fileURL = appSrc.NewDownLoadURL;
 			await JS.InvokeVoidAsync("open", fileURL);
 			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
@@ -130,7 +130,7 @@ Index
 	{
 		try
 		{
-			string fileURL = appSrc.DownLoadURL;
+			string fileURL = appSrc.NewDownLoadURL;
 			await JS.InvokeVoidAsync("setClipboard", fileURL);
 
 		}

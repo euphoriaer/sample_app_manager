@@ -1,5 +1,6 @@
 ﻿using AntDesign;
 using LiteDB;
+using sample_app_manager.Helper;
 using System.ComponentModel.DataAnnotations;
 
 namespace SampleAppManager.Data
@@ -14,6 +15,18 @@ namespace SampleAppManager.Data
 		public string Description { get; set; } = "";
 
 		public string DownLoadURL { get; set; } = "";
+		[BsonIgnore]
+		public string NewDownLoadURL {
+			get
+			{
+				var index = DownLoadURL.LastIndexOf("/");
+				var name = DownLoadURL.Split("/", index).Last();
+
+				var address = NetConfig.IP;
+				var download = "https://" + address + $"/files/{name}";
+				return download;
+			}
+		}
 
 		public string QRcode { get; set; } = "";
 

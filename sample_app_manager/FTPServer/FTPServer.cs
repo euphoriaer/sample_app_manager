@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using sample_app_manager.Helper;
 using System.Diagnostics;
 
 namespace SampleAppManager.FTPServer
@@ -17,6 +18,7 @@ namespace SampleAppManager.FTPServer
 			{
 				NavigationManager = navigationManager;
 				url = NavigationManager.BaseUri;
+				NetConfig.IP = GetIP();
 				wwwroot = Path.Combine(Environment.CurrentDirectory, "wwwroot");
 				envWebRootPath = wwwroot;
 				envContentRootPath = Environment.CurrentDirectory;
@@ -32,15 +34,29 @@ namespace SampleAppManager.FTPServer
 		{
 
 		}
+		private string GetIP()
+		{
+			try
+			{
+				System.Net.Sockets.TcpClient c = new System.Net.Sockets.TcpClient();
+				c.Connect("www.baidu.com", 80);
+				string ip = ((System.Net.IPEndPoint)c.Client.LocalEndPoint).Address.MapToIPv4().ToString();
+				c.Close();
+				return ip;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
 
 	}
 
 
 
+
 	public class FTPServer
 	{
-
-
 		public Process serverProcess;
 
 		public FTPServer(string savePath, string serverPath, string configPath)

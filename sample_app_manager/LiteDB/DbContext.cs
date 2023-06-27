@@ -1,4 +1,5 @@
 ﻿using LiteDB;
+using sample_app_manager.Helper;
 using SampleAppManager.Data;
 using static SampleAppManager.LiteDB.LiteDbContext;
 
@@ -194,8 +195,26 @@ namespace SampleAppManager.LiteDB
 				{
 					var col = db.GetCollection<APKItem>();
 					var list = col.FindAll().ToList();
+					for (int i = 0; i < list.Count; i++)
+					{
+						var curApp = list[i];
+						if (curApp.DownLoadURL==null)
+						{
+							continue;
+						}
+						curApp.DownLoadURL = GetNewDownloadURL(curApp.DownLoadURL);
+					}
 					return list;
 				}
+			}
+			public string GetNewDownloadURL(string DownLoadURL)
+			{
+				var index = DownLoadURL.LastIndexOf("/");
+				var name = DownLoadURL.Split("/", index).Last();
+
+				var address = NetConfig.IP;
+				var download = "https://" + address + $"/files/{name}";
+				return download;
 			}
 			public List<APKItem> Get(ObjectId apkID)
 			{
@@ -204,6 +223,11 @@ namespace SampleAppManager.LiteDB
 				{
 					var col = db.GetCollection<APKItem>();
 					var list = col.Query().Where(x => x.CustomerId == apkID).ToList();
+					for (int i = 0; i < list.Count; i++)
+					{
+						var curApp = list[i];
+						curApp.DownLoadURL = GetNewDownloadURL(curApp.DownLoadURL);
+					}
 					return list;
 				}
 			}

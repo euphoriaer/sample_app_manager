@@ -4,17 +4,17 @@
 public class FTPServer
 {
 
-
 	public Process serverProcess;
 
-	public FTPServer(string savePath, string serverPath, string configPath)
+	public FTPServer(string savePath, string serverPath, string configPath,string port="80")
 	{
 
 		if (File.Exists(configPath))
 		{
 			File.Delete(configPath);
 		}
-		string cfg = "vfs:\r\n  " +
+		string cfg = $"port: {port}\r\n  " +
+		    "vfs:\r\n  " +
 			"children:\r\n    " +
 			$"- source: {savePath}\r\n      " +
 			"can_see: true\r\n      " +
