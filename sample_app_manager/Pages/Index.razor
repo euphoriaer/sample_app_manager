@@ -9,8 +9,8 @@ Index
 @inject LiteDbContext Data
 
 <div>
-	<GridRow>
-		<GridCol Span="12">
+	<Space Direction="DirectionVHType.Vertical"  Align="center">
+		<SpaceItem>
 			<AntDesign.Layout>
 				<AuthorizeView>
 					<Authorized>
@@ -37,12 +37,11 @@ Index
 					</NotAuthorized>
 				</AuthorizeView>
 			</AntDesign.Layout>
-		</GridCol>
-
-		<GridCol Span="12">
+		</SpaceItem>
+		<SpaceItem>
 			<AntDesign.Layout>
 				<span>AppList</span>
-				<ListView TItem="APKItem"  Pageable="true" PageItems="9" OnQueryAsync="@OnQueryAsync">
+				<ListView TItem="APKItem" Items="appItems">
 					<HeaderTemplate>
 						<div>最近的上传</div>
 					</HeaderTemplate>
@@ -93,8 +92,8 @@ Index
 					</BodyTemplate>
 				</ListView>
 			</AntDesign.Layout>
-		</GridCol>
-	</GridRow>
+		</SpaceItem>
+	</Space>
 </div>
 
 @code {
