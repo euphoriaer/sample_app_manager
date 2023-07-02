@@ -20,7 +20,7 @@ namespace app_manager_startup
 			string host = "https://" + GetIP() + ":5000";
 			HostTextBox.Text = host;
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
-
+			FtpPortText.Text = "443";
 		}
 
 		private void CurrentDomain_ProcessExit(object? sender, EventArgs e)
@@ -36,7 +36,7 @@ namespace app_manager_startup
 			app_manager = new Process();
 
 			app_manager.StartInfo.FileName = "sample_app_manager.exe";
-			app_manager.StartInfo.Arguments = "--urls " + HostTextBox.Text;
+			app_manager.StartInfo.Arguments = "--urls " + HostTextBox.Text + "--FTPport" + FtpPortText.Text;
 			app_manager.Start();
 		}
 
@@ -54,6 +54,11 @@ namespace app_manager_startup
 			{
 				return null;
 			}
+		}
+
+		private void FtpPortText_TextChanged(object sender, EventArgs e)
+		{
+
 		}
 	}
 }

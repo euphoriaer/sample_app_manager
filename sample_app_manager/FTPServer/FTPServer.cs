@@ -11,6 +11,7 @@ namespace SampleAppManager.FTPServer
 		public static string wwwroot;
 		public static string envWebRootPath;
 		public static string envContentRootPath;
+		public static string FTPPort="443";
 		public FTPServerProvide(NavigationManager navigationManager)
 		{
 			if (FTPServer == null)
@@ -59,7 +60,7 @@ namespace SampleAppManager.FTPServer
 				"can_delete: true\r\n" +
 				$"cert: {FTPServerProvide.wwwroot}\\ftp_server\\self.cert\r\n" +
 				$"private_key: {FTPServerProvide.wwwroot}\\ftp_server\\self.key\r\n" +
-				"https_port: 443";
+				$"https_port: {FTPServerProvide.FTPPort}";
 
 			using (File.Create(configPath)) ;
 			File.WriteAllText(configPath, cfg);

@@ -18,6 +18,16 @@ builder.Services.AddServerSideBlazor();
 builder.Services.AddAntDesign();
 builder.Services.AddBlazoredSessionStorage();
 
+for (int i = 0; i < args.Length; i++)
+{
+    Console.WriteLine("ÏÔÊ¾²ÎÊý£º"+args[i]);
+    if (args[i].Contains("port"))
+    {
+        var port = args[i+1];
+        FTPServerProvide.FTPPort = port;
+	}
+}
+
 builder.Services.AddBootstrapBlazor();
 builder.Services.Configure<HubOptions>(option => option.MaximumReceiveMessageSize = long.MaxValue);
 
