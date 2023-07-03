@@ -50,8 +50,7 @@ namespace SampleAppManager.Controllers
 				var address = HttpContext.Request.Host.Host;
 				var downloadURL = "https://" + address + $"/files/{storageFileName}";
 				item.localPath = filePath;
-				item.DownLoadURL = downloadURL;
-				item.QRcode = downloadURL;
+				item.StorageName = storageFileName;
 				item.Name = originalName;
 				Apks.Add(item);
 			}

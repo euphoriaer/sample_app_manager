@@ -4,6 +4,7 @@
 @inject NavigationManager NavigationManager
 @inject HttpClient HttpClients
 @using BootstrapBlazor.Components
+@using sample_app_manager.Helper;
 
 <BootstrapBlazor.Components.Card>
 	<BodyTemplate>
@@ -157,10 +158,9 @@
 				System.Uri uri = new Uri(NavigationManager.BaseUri, false);
 				var address = uri.Host;
 				downloadURL = "https://" + address + $"/files/{trustedFileNameForFileStorage}";
-
+				appSrc.StorageName = trustedFileNameForFileStorage;
 				appSrc.localPath = path;
-				appSrc.DownLoadURL = downloadURL;
-				appSrc.QRcode = downloadURL;
+		
 
 
 				if (ChangeData != null)
@@ -182,9 +182,8 @@
 	{
 		try
 		{
-
-			var fileName = appSrc.Name;
-			var fileURL = appSrc.DownLoadURL;
+		
+			var fileURL = NetConfig.GetURL(appSrc.StorageName);
 			await JS.InvokeVoidAsync("open",fileURL);
 			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
@@ -200,7 +199,7 @@
 	{
 		try
 		{
-			string fileURL = appSrc.DownLoadURL;
+			var fileURL = NetConfig.GetURL(appSrc.StorageName);
 			await JS.InvokeVoidAsync("setClipboard", fileURL);
 			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");

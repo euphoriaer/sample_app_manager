@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @using BootstrapBlazor.Components
 @using LiteDB;
+@using sample_app_manager.Helper;
 @inject IJSRuntime JS
 @inject IWebHostEnvironment env
 Index
@@ -112,9 +113,7 @@ Index
 	{
 		try
 		{
-
-			var fileName = appSrc.Name;
-			var fileURL = appSrc.DownLoadURL;
+			var fileURL = NetConfig.GetURL(appSrc.StorageName);
 			await JS.InvokeVoidAsync("open", fileURL);
 			//await JS.InvokeVoidAsync("triggerFileDownload", fileName, fileURL);
 			//await HttpClients.GetFromJsonAsync($"{NavigationManager.BaseUri}/api/download/{fileURL}");
@@ -130,7 +129,7 @@ Index
 	{
 		try
 		{
-			string fileURL = appSrc.DownLoadURL;
+			var fileURL = NetConfig.GetURL(appSrc.StorageName);
 			await JS.InvokeVoidAsync("setClipboard", fileURL);
 
 		}

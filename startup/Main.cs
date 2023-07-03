@@ -60,5 +60,10 @@ namespace app_manager_startup
 		{
 
 		}
+
+		private void HostTextBox_TextChanged(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

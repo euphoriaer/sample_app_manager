@@ -54,6 +54,7 @@
 			HostTextBox.Name = "HostTextBox";
 			HostTextBox.Size = new Size(253, 23);
 			HostTextBox.TabIndex = 1;
+			HostTextBox.TextChanged += HostTextBox_TextChanged;
 			// 
 			// checkBox1
 			// 

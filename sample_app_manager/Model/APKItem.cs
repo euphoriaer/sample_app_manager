@@ -1,5 +1,6 @@
 ﻿using AntDesign;
 using LiteDB;
+using sample_app_manager.Helper;
 using System.ComponentModel.DataAnnotations;
 
 namespace SampleAppManager.Data
@@ -13,9 +14,15 @@ namespace SampleAppManager.Data
 
 		public string Description { get; set; } = "";
 
-		public string DownLoadURL { get; set; } = "";
+		public string StorageName { get; set; } = "";
 
-		public string QRcode { get; set; } = "";
+		[BsonIgnore]
+		public string QRcode 
+		{	get 
+			{
+				return NetConfig.GetURL(StorageName);
+			} 
+		}
 
 		public string localPath { get; set; } = "";
 

@@ -1,0 +1,10 @@
+vfs:
+  children:
+    - source: C:\ASP\app_manager\sample_app_manager\wwwroot\files
+      can_see: true
+      can_list: true
+      can_upload: true
+      can_delete: true
+cert: C:\ASP\app_manager\sample_app_manager\wwwroot\ftp_server\self.cert
+private_key: C:\ASP\app_manager\sample_app_manager\wwwroot\ftp_server\self.key
+https_port: 443

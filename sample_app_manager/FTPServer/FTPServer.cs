@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
+using sample_app_manager.Helper;
 using System.Diagnostics;
 
 namespace SampleAppManager.FTPServer
@@ -51,6 +52,7 @@ namespace SampleAppManager.FTPServer
 			{
 				File.Delete(configPath);
 			}
+			NetConfig.IP = GetIP();
 			string cfg = "vfs:\r\n  " +
 				"children:\r\n    " +
 				$"- source: {FTPServerProvide.wwwroot}\\files\r\n      " +
@@ -62,7 +64,7 @@ namespace SampleAppManager.FTPServer
 				$"private_key: {FTPServerProvide.wwwroot}\\ftp_server\\self.key\r\n" +
 				$"https_port: {FTPServerProvide.FTPPort}";
 
-			using (File.Create(configPath)) ;
+			using (File.Create(configPath));
 			File.WriteAllText(configPath, cfg);
 
 			AppDomain.CurrentDomain.ProcessExit += new EventHandler(CurrentDomain_ProcessExit);
@@ -71,7 +73,21 @@ namespace SampleAppManager.FTPServer
 
 			serverProcess.Exited += new EventHandler(ServerExit);
 		}
-
+		private string GetIP()
+		{
+			try
+			{
+				System.Net.Sockets.TcpClient c = new System.Net.Sockets.TcpClient();
+				c.Connect("www.baidu.com", 80);
+				string ip = ((System.Net.IPEndPoint)c.Client.LocalEndPoint).Address.MapToIPv4().ToString();
+				c.Close();
+				return ip;
+			}
+			catch (Exception)
+			{
+				return null;
+			}
+		}
 		private void ServerExit(object? sender, EventArgs e)
 		{
 
