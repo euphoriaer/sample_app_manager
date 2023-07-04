@@ -7,7 +7,7 @@ namespace app_manager_startup
 {
 	public partial class Main : Form
 	{
-		public static FTPServer FTPServer;
+		
 		private Process app_manager;
 		public Main()
 		{
@@ -36,7 +36,7 @@ namespace app_manager_startup
 			app_manager = new Process();
 
 			app_manager.StartInfo.FileName = "sample_app_manager.exe";
-			app_manager.StartInfo.Arguments = "--urls " + HostTextBox.Text + "--FTPport" + FtpPortText.Text;
+			app_manager.StartInfo.Arguments = "--urls " + HostTextBox.Text + " --FTPport " + FtpPortText.Text;
 			app_manager.Start();
 		}
 

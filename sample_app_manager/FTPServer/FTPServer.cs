@@ -52,7 +52,7 @@ namespace SampleAppManager.FTPServer
 			{
 				File.Delete(configPath);
 			}
-			NetConfig.IP = GetIP();
+			NetConfig.IP = GetIP()+$":{FTPServerProvide.FTPPort}";
 			string cfg = "vfs:\r\n  " +
 				"children:\r\n    " +
 				$"- source: {FTPServerProvide.wwwroot}\\files\r\n      " +
