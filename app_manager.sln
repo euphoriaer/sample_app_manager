@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sample_app_manager", "sampl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "startup", "startup\startup.csproj", "{B21C005D-71F1-4B2A-A947-32A79DE9D346}"
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Setup", "Setup\Setup.vdproj", "{353A6182-2450-4176-A728-21089B6B5365}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,8 @@ Global
 		{B21C005D-71F1-4B2A-A947-32A79DE9D346}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B21C005D-71F1-4B2A-A947-32A79DE9D346}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B21C005D-71F1-4B2A-A947-32A79DE9D346}.Release|Any CPU.Build.0 = Release|Any CPU
+		{353A6182-2450-4176-A728-21089B6B5365}.Debug|Any CPU.ActiveCfg = Debug
+		{353A6182-2450-4176-A728-21089B6B5365}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

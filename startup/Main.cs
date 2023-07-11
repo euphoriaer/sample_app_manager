@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Security.Policy;
@@ -33,6 +34,24 @@ namespace app_manager_startup
 
 		private void StartUp_Click(object sender, EventArgs e)
 		{
+
+			Process process = new Process();
+			process.StartInfo.FileName = "cmd.exe";
+
+			process.StartInfo.RedirectStandardInput = true;
+			//输出信息
+			process.StartInfo.RedirectStandardOutput = true;
+			process.StartInfo.RedirectStandardError = true;
+
+			process.Start();
+			process.StandardInput.WriteLine("dotnet dev-certs https --clean" + "&exit");
+			process.StandardInput.AutoFlush = true;
+
+			process.StandardInput.WriteLine("dotnet dev-certs https --verbose" + "&exit");
+			process.WaitForExit();
+			process.Close();
+
+			Process proc = new Process();
 			app_manager = new Process();
 
 			app_manager.StartInfo.FileName = "sample_app_manager.exe";
