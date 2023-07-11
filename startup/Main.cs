@@ -38,16 +38,29 @@ namespace app_manager_startup
 			Process process = new Process();
 			process.StartInfo.FileName = "cmd.exe";
 
-			process.StartInfo.RedirectStandardInput = true;
 			//输出信息
+			process.StartInfo.RedirectStandardInput = true;
 			process.StartInfo.RedirectStandardOutput = true;
 			process.StartInfo.RedirectStandardError = true;
 
 			process.Start();
 			process.StandardInput.WriteLine("dotnet dev-certs https --clean" + "&exit");
 			process.StandardInput.AutoFlush = true;
+			process.WaitForExit();
+			process.Close();
 
+
+
+			process = new Process();
+			process.StartInfo.FileName = "cmd.exe";
+			//输出信息
+			process.StartInfo.RedirectStandardInput = true;
+			process.StartInfo.RedirectStandardOutput = true;
+			process.StartInfo.RedirectStandardError = true;
+
+			process.Start();
 			process.StandardInput.WriteLine("dotnet dev-certs https --verbose" + "&exit");
+			process.StandardInput.AutoFlush = true;
 			process.WaitForExit();
 			process.Close();
 
